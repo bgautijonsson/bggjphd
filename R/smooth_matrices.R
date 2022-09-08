@@ -1,3 +1,12 @@
+#' Title
+#'
+#' @param fit_dat
+#' @param priors
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_matrices <- function(fit_dat, priors) {
 
   eta_hat <- make_eta_hat(fit_dat)
@@ -19,6 +28,14 @@ make_matrices <- function(fit_dat, priors) {
   out
 }
 
+#' Title
+#'
+#' @param fit_dat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_eta_hat <- function(fit_dat) {
 
   Matrix::Matrix(
@@ -28,6 +45,14 @@ make_eta_hat <- function(fit_dat) {
 
 }
 
+#' Title
+#'
+#' @param fit_dat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_Q_e <- function(fit_dat) {
   Matrix::bdiag(
     fit_dat$hess
@@ -43,6 +68,12 @@ make_chol_Q_e <- function(fit_dat) {
 }
 
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_nu <- function() {
   Matrix::Matrix(
     data = 0,
@@ -51,6 +82,14 @@ make_nu <- function() {
   )
 }
 
+#' Title
+#'
+#' @param eta_hat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_Z <- function(eta_hat) {
   rows <- nrow(eta_hat)
   n_station <- rows/4

@@ -19,6 +19,7 @@ Imports:
     dplyr,
     evd,
     furrr,
+    future,
     Matrix,
     progressr,
     purrr,

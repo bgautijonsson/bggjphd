@@ -15,8 +15,8 @@ pi_theta <- function(theta) {
 
   out <- 0
   for (i in 1:4) {
-    out <- out + dnorm(mus[i], mean = mu_mu[i], sd = 1, log = T)
-    out <- out + dnorm(log_prec[i], mean = mu_prec[i], sd = 1, log = T)
+    out <- out + dnorm(mus[i], mean = mu_mu[i], sd = 3, log = T)
+    out <- out + dnorm(log_prec[i], mean = mu_prec[i], sd = 3, log = T)
   }
 
   out

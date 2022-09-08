@@ -16,37 +16,39 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(bggjphd)
-library(tidyverse)
+# library(tidyverse)
 ```
 
 
 ```{r}
-d <- all_stations |> 
-  filter(
-    proj_x <= 10,
-    proj_y <= 10
-  )
-
+# d <- all_stations |> 
+#   filter(
+#     proj_x <= 3,
+#     proj_y <= 3
+#   )
+# 
 
 ```
 
 
 
 ```{r}
-start <-Sys.time()
-fit_dat <- d |> ms_max()
-results <- fit_dat |> ms_smooth(n_samp = 500)
-stop <- Sys.time()
+# start <-Sys.time()
+# fit_dat <- d |> ms_max()
+# results <- fit_dat |> ms_smooth(n_samp = 100)
+# stop <- Sys.time()
+# 
+# stop - start
 ```
 
 
 ```{r}
-results |> 
-  pivot_longer(c(-iter, -chain)) |> 
-  filter(iter> 300) |> 
-  ggplot(aes(iter, value, group = chain, col = factor(chain))) +
-  geom_line() +
-  facet_wrap("name", scales = "free_y", ncol = 2) +
-  theme(legend.position = "none")
+# results |> 
+#   pivot_longer(c(-iter, -chain)) |> 
+#   # filter(iter> 300) |> 
+#   ggplot(aes(iter, value, group = chain, col = factor(chain))) +
+#   geom_line() +
+#   facet_wrap("name", scales = "free_y", ncol = 2) +
+#   theme(legend.position = "none")
 ```
 

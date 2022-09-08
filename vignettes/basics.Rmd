@@ -1,0 +1,52 @@
+---
+title: "basics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(bggjphd)
+library(tidyverse)
+```
+
+
+```{r}
+d <- all_stations |> 
+  filter(
+    proj_x <= 10,
+    proj_y <= 10
+  )
+
+
+```
+
+
+
+```{r}
+start <-Sys.time()
+fit_dat <- d |> ms_max()
+results <- fit_dat |> ms_smooth(n_samp = 500)
+stop <- Sys.time()
+```
+
+
+```{r}
+results |> 
+  pivot_longer(c(-iter, -chain)) |> 
+  filter(iter> 300) |> 
+  ggplot(aes(iter, value, group = chain, col = factor(chain))) +
+  geom_line() +
+  facet_wrap("name", scales = "free_y", ncol = 2) +
+  theme(legend.position = "none")
+```
+

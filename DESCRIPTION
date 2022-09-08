@@ -1,10 +1,10 @@
-Package: maxandsmooth
-Title: What the Package Does (One Line, Title Case)
+Package: bggjphd
+Title: BGGJ PhD Code
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Brynjólfur Gauti", "Guðrúnar Jónsson", , "brynjolfur@hi.is", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-4730-5584"))
+Description: I'm making and maintaining this package to go along side my PhD work for reproducibility.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
@@ -12,3 +12,19 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 URL: https://github.com/bgautijonsson/maxandsmooth
 BugReports: https://github.com/bgautijonsson/maxandsmooth/issues
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Imports: 
+    dplyr,
+    evd,
+    furrr,
+    Matrix,
+    progressr,
+    purrr,
+    sparseMVN,
+    tidyr
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

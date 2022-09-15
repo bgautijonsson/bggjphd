@@ -4,7 +4,20 @@
 \alias{ms_smooth_sample}
 \title{Title}
 \usage{
-ms_smooth_sample(y, x, Q_e, chol_Q_e, eta_hat, Z, priors, n_samp = 500)
+ms_smooth_sample(
+  chain,
+  p,
+  y,
+  len_y,
+  x,
+  len_x,
+  Q_e,
+  chol_Q_e,
+  eta_hat,
+  Z,
+  priors,
+  n_samp = 500
+)
 }
 \arguments{
 \item{n_samp}{}

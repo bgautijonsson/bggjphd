@@ -73,17 +73,6 @@ p_gev_trend <- function(x, t, mu0, sigma, xi, delta, t0 = 1981) {
 #' @examples
 fit_gev_trend <- function(data, ...) {
 
-    # opt <- optim(neg_log_lik_gev_trend,
-    #              par = c(0, 0, 0.1, 0),
-    #              y = data$precip,
-    #              t = data$year,
-    #              hessian = T)
-    #
-    # par <- opt$par
-    # mu <- exp(par[1])
-    # sigma <- exp(par[2]) * mu
-    # xi <- 1 / (1 + exp(-par[3])) - 0.5
-    # delta <- 0.016 * 1 / (1 + exp(-par[4])) - 0.008
 
     loc_par <- data$year
     loc_par <- (loc_par - mean(loc_par)) / sd(loc_par)

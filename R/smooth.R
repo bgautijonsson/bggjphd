@@ -1,4 +1,4 @@
-#' Title
+#' Perform the second step, smooth, to sample from the posterior
 #'
 #' @param fit_dat
 #' @param n_samp
@@ -27,6 +27,7 @@ ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
 
 
   p <- progressr::progressor(steps = n_chain * n_samp)
+
   out <- furrr::future_map(
     seq_len(n_chain),
     ~ {
@@ -68,7 +69,7 @@ ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
 
 }
 
-#' Title
+#' Helper function for performing sampling
 #'
 #' @param y
 #' @param x
@@ -78,6 +79,10 @@ ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
 #' @param Z
 #' @param priors
 #' @param n_samp
+#' @param chain
+#' @param p
+#' @param len_y
+#' @param len_x
 #'
 #' @return
 #' @export
@@ -85,7 +90,6 @@ ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
 #' @examples
 ms_smooth_sample <- function(chain, p, y, len_y, x, len_x, Q_e, chol_Q_e, eta_hat, Z, priors, n_samp = 500) {
 
-  # p <- progressr::progressor(steps = n_samp)
 
   p(sprintf("Chain: %g", chain))
 
@@ -201,7 +205,6 @@ ms_smooth_sample <- function(chain, p, y, len_y, x, len_x, Q_e, chol_Q_e, eta_ha
     y_hat <- Matrix::Matrix(yx_samp[i, seq_len(len_y)])
     x <- Matrix::Matrix(yx_samp[i, len_y + seq_len(len_x)])
 
-    # if (i %% 50 == 0) message(stringr::str_c("Finished with iteration: ", i))
 
   }
 

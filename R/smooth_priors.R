@@ -1,23 +1,27 @@
 #' Basic data-based priors for theta
 #'
-#' @param fit_dat Tibble containing a list column with GEV parameters for each station
+#' @param station_estimates Tibble containing a list column with GEV parameters for each station
 #'
-#' @return A vector containing priors for the latent parameters x
-#' @export
+#' @return A vector containing the prior parameter vector theta
 #'
-#' @examples
-get_priors <- function(fit_dat) {
+get_priors <- function() {
 
-  priors <- fit_dat |>
-    tidyr::unnest(par) |>
-    dplyr::group_by(station) |>
-    dplyr::mutate(term = dplyr::row_number()) |>
-    dplyr::ungroup() |>
-    dplyr::group_by(term) |>
-    dplyr::summarise(mean = mean(par),
+  priors <- station_estimates |>
+    unnest(par) |>
+    group_by(station) |>
+    mutate(term = row_number()) |>
+    ungroup() |>
+    group_by(term) |>
+    summarise(mean = mean(par),
               sd = sd(par),
               .groups = "drop")
 
-  c(priors$mean, log(1/priors$sd))
+  list(
+    mu_nu = priors$mean,
+    log_sqrt_prec_nu = log(1/priors$sd)
+  )
+
+
 
 }
+

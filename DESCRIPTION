@@ -13,19 +13,23 @@ RoxygenNote: 7.2.1
 URL: https://github.com/bgautijonsson/maxandsmooth
 BugReports: https://github.com/bgautijonsson/maxandsmooth/issues
 Depends: 
-    R (>= 2.10)
+    dplyr,
+    Matrix,
+    posterior,
+    purrr,
+    R (>= 2.10),
+    sparseMVN,
+    tibble,
+    tidyr
 LazyData: true
 Imports: 
     cmdstanr,
-    dplyr,
     evd,
     furrr,
     future,
-    Matrix,
+    here,
     progressr,
-    purrr,
-    sparseMVN,
-    tidyr
+    vroom
 Suggests: 
     knitr,
     rmarkdown

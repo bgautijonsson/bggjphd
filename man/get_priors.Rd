@@ -4,13 +4,13 @@
 \alias{get_priors}
 \title{Basic data-based priors for theta}
 \usage{
-get_priors(fit_dat)
+get_priors()
 }
 \arguments{
-\item{fit_dat}{Tibble containing a list column with GEV parameters for each station}
+\item{station_estimates}{Tibble containing a list column with GEV parameters for each station}
 }
 \value{
-A vector containing priors for the latent parameters x
+A vector containing the prior parameter vector theta
 }
 \description{
 Basic data-based priors for theta

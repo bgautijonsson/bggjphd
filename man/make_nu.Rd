@@ -2,10 +2,11 @@
 % Please edit documentation in R/smooth_matrices.R
 \name{make_nu}
 \alias{make_nu}
-\title{Title}
+\title{Create the vector nu}
 \usage{
-make_nu()
+make_nu(priors)
 }
 \description{
-Title
+Creates a vector containing the fixed and mixed effects for modeling
+the data-level parameters
 }

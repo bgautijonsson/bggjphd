@@ -1,76 +1,10 @@
-#' Calculate the negative log likelihood of a generalized extreme value distribution with trend using vague priors on the parameters
-#'
-#' @param y The block maxima we want to fit our GEV with trend to
-#' @param t The time at which each y is measured. To be used with the trend parameter
-#' @param par The parameters for the GEV with trent
-#'
-#' @return The negative log likelihood of the outcome, y, at timepoints, t, given the parameters, par.
-#' @export
-#'
-#' @examples
-neg_log_lik_gev_trend <- function(y, t, par, t0 = 1981) {
-
-    t <- t - t0
-
-    mu0 <- exp(par[1])
-    sigma <- exp(par[2]) * mu0
-    xi <- 1 / (1 + exp(-par[3])) - 0.5
-    delta <- 0.016 * 1 / (1 + exp(-par[4])) - 0.008
-
-    mu <- mu0 * (1 + delta * t)
-
-    m <- length(y)
-
-    z <- (y - mu) / sigma
-
-    if (any(1 + xi * z <= 0)) return(NA)
-
-
-    out <- - m * log(sigma)
-    out <- out - (1 + 1/xi) * sum(log(1 + xi * z))
-    out <- out - sum((1 + xi * z)^{-1/xi})
-
-    priors <- dnorm(par[1], mean = 2.4, sd = 0.2, log = T) +
-        dnorm(par[2], mean = -0.5, sd = 0.2, log = T) +
-        dnorm(par[3], mean = 0, sd = 0.2, log = T) +
-        dnorm(par[4], mean = 0, sd = 0.2, log = T)
-
-    out <- out + priors
-
-    -out
-}
-
-
-#' The cumulative distribution function for the generalized extreme value distribution with trend parameter
-#'
-#' @param x The value for which to calculate P(X < x)
-#' @param t The timepoint at which the value x was measured
-#' @param mu0 The location parameter at timepoint t0
-#' @param sigma The scale parameter
-#' @param xi The shape parameter
-#' @param delta The trend parameter
-#' @param t0 Time time at which mu0 should be applied.
-#'
-#' @return Returns P(X < x) for the GEV with trend
-#' @export
-#'
-#' @examples
-p_gev_trend <- function(x, t, mu0, sigma, xi, delta, t0 = 1981) {
-    t <- t - t0
-    mu <- mu0 * (1 + delta * t)
-    exp(-(1 + xi * (x - mu) / sigma)^(-1/xi))
-}
-
-
 #' A function to calculate and return parameters and Hessian for the generalized extreme distribution with trend
 #'
 #' @param data The tibble on which to calculate GEV parameters
 #' @param y The name of the outcome variable in the data
 #'
 #' @return A tibble with two list columns, one for the parameters and one for the Hessian
-#' @export
 #'
-#' @examples
 fit_gev_trend <- function(data, ...) {
 
 
@@ -82,6 +16,12 @@ fit_gev_trend <- function(data, ...) {
     par <- m$param
     hess <- solve(m$var.cov)
 
+    # par <-tibble(
+    #   parameter = c("psi", "gamma", "tau", "phi"),
+    #   estimate = par
+    # ) |>
+    #   slice(1, 3, 4, 2)
+
     tibble(hess = list(hess),
            par = list(par))
 
@@ -92,12 +32,11 @@ fit_gev_trend <- function(data, ...) {
 #'
 #' @param data The data on which to perform the Max step
 #'
-#' @return
+#' @return A tibble with one row per station and nested columns containing results from the Max step
 #' @export
 #'
-#' @examples
-ms_max <- function(data) {
-  data |>
+ms_max <- function() {
+  precip |>
     group_by(station) |>
     group_modify(fit_gev_trend)
 }

@@ -15,38 +15,34 @@
 #' @export
 #'
 #' @examples
-met_hast_theta <- function(theta, y, x, mu_x, chol_Q_x, Z, chol_Q_e, mu_x_cond_y, chol_Q_x_cond_y) {
+met_hast_theta <- function(
+    theta,
+    Z, nu,
+    x, mu_x, chol_Q_x,
+    mu_x_cond_etahat, chol_Q_x_cond_etahat
+) {
   d <- length(theta)
-  mh_sd <-  2.38 * d ^(-1/2)
+  mh_sd <-  2.3 * d ^(-1/2)
 
   mh_samples <- rnorm(n = d, mean = 0, sd = mh_sd)
 
   theta_prop <- theta + mh_samples
 
-  pi_new <- pi_theta_cond_y(
+  pi_new <- pi_theta_cond_etahat(
     theta_prop,
-    y,
-    x,
-    mu_x,
-    chol_Q_x,
-    Z,
-    chol_Q_e,
-    mu_x_cond_y,
-    chol_Q_x_cond_y
+    eta,
+    x, mu_x, chol_Q_x,
+    mu_x_cond_etahat, chol_Q_x_cond_etahat
   )
 
-  pi_old <- pi_theta_cond_y(
+  pi_old <- pi_theta_cond_etahat(
     theta,
-    y,
-    x,
-    mu_x,
-    chol_Q_x,
-    Z,
-    chol_Q_e,
-    mu_x_cond_y, chol_Q_x_cond_y
+    eta,
+    x, mu_x, chol_Q_x,
+    mu_x_cond_etahat, chol_Q_x_cond_etahat
   )
 
-  if (runif(1) < exp(pi_new - pi_old)) {
+  if (exp(pi_new - pi_old) > runif(1)) {
 
     return(theta_prop)
 
@@ -55,4 +51,24 @@ met_hast_theta <- function(theta, y, x, mu_x, chol_Q_x, Z, chol_Q_e, mu_x_cond_y
     theta
 
   }
+}
+
+
+#' Title
+#'
+#' @param theta
+#'
+#' @return
+#' @export
+#'
+#' @examples
+propose_theta <- function(theta) {
+  d <- length(theta)
+  mh_sd <-  2.3 * d ^(-1/2)
+
+  mh_samples <- rnorm(n = d, mean = 0, sd = mh_sd)
+
+  theta_prop <- theta + mh_samples
+
+  theta_prop
 }

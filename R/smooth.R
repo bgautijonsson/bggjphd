@@ -1,32 +1,15 @@
 #' Perform the second step, smooth, to sample from the posterior
 #'
-#' @param fit_dat
-#' @param n_samp
-#' @param n_chain
+#' @param n_samp The number of samples total (warmup + sampling).
+#' @param n_chain The number of chains to sample from.
+#' @param fmla
 #'
-#' @return
+#' @return Results from the Bayesian samples
 #' @export
 #'
-#' @examples
-ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
-  require(Matrix)
-  priors <- get_priors(fit_dat)
+ms_smooth <- function(fmla = station ~ param - 1, theta = NULL, n_samp = 500, n_chain = 4) {
 
-  eta_hat <- make_eta_hat(fit_dat)
-  Q_e <- make_Q_e(fit_dat)
-  chol_Q_e <- Matrix::Cholesky(Q_e)
-
-  Z <- make_Z(eta_hat)
-  nu <- make_nu()
-
-  y <- eta_hat
-  x <- nu
-
-  len_y <- nrow(y)
-  len_x <- nrow(x)
-
-
-  p <- progressr::progressor(steps = n_chain * n_samp)
+  p <- progressr::progressor(steps = n_chain * n_samp + 1)
 
   out <- furrr::future_map(
     seq_len(n_chain),
@@ -34,115 +17,85 @@ ms_smooth <- function(fit_dat, n_samp = 500, n_chain = 4) {
       ms_smooth_sample(
         chain = .x,
         p = p,
-        y = y,
-        len_y = len_y,
-        x = x,
-        len_x = len_x,
-        Q_e = Q_e,
-        chol_Q_e = chol_Q_e,
-        eta_hat = eta_hat,
-        Z = Z,
-        priors = priors,
+        fmla = fmla,
+        theta = NULL,
         n_samp = n_samp
       )
     },
     .options = furrr::furrr_options(seed = TRUE, stdout = TRUE)
   )
 
-  samples <- tibble()
+  p(
+    "Converting raw MCMC samples to tidy format",
+    class = "sticky"
+  )
 
-  for (i in 1:n_chain) {
-    samples <- samples |>
-      bind_rows(
-        out[[i]]$theta |>
-          as.data.frame() |>
-          as_tibble() |>
-          set_names(c("mu_psi", "mu_tau", "mu_phi", "mu_xi", "prec_psi", "prec_tau", "prec_phi", "prec_xi")) |>
-          mutate(iter = row_number(),
-                 chain = i)
-      )
-
-  }
-
-  samples
-
+  tidy_results(out)
 
 }
 
 #' Helper function for performing sampling
 #'
-#' @param y
-#' @param x
-#' @param Q_e
-#' @param chol_Q_e
-#' @param eta_hat
-#' @param Z
-#' @param priors
 #' @param n_samp
 #' @param chain
 #' @param p
-#' @param len_y
-#' @param len_x
+#' @param fmla
 #'
 #' @return
 #' @export
-#'
-#' @examples
-ms_smooth_sample <- function(chain, p, y, len_y, x, len_x, Q_e, chol_Q_e, eta_hat, Z, priors, n_samp = 500) {
+ms_smooth_sample <- function(
+    chain,
+    p,
+    fmla,
+    theta,
+    n_samp = 500
+) {
 
 
-  p(sprintf("Chain: %g", chain))
+  p()
 
-  theta <- rnorm(8, mean = priors, sd = 4)
-  theta_samp <- matrix(nrow = n_samp, ncol = length(theta))
+  theta <- get_theta()
+  priors <- get_priors()
 
-  yx_samp <- matrix(nrow = n_samp, ncol = len_y + len_x)
+  Z <- make_Z()
+
+  len_eta <- nrow(Z)
+  len_nu <- ncol(Z)
+
+  nu <- make_nu(priors)
+  eta <- make_eta(Z, nu, theta)
+  x <- make_x(nu, eta)
+
+
+  theta_samp <- matrix(nrow = n_samp, ncol = length(unlist(theta)))
+  x_samp <- matrix(nrow = n_samp, ncol = len_eta + len_nu)
+
 
   i <- 1
 
-  theta_samp[i, ] <- theta
-
-  mu_x <- Matrix::Matrix(theta_samp[i, 1:4])
-  Q_x <- Matrix::.sparseDiagonal(n = nrow(mu_x), x = exp(theta_samp[i, 5:8])^2)
-  chol_Q_x <- Matrix::Cholesky(Q_x)
+  theta_samp[i, ] <- unlist(theta)
 
 
-  Q_x_cond_y <- Q_x + Matrix::t(Z) %*% Q_e %*% Z
-  chol_Q_x_cond_y <- Matrix::Cholesky(Q_x_cond_y)
 
-  mu_x_cond_y <- Matrix::solve(Q_x_cond_y, Q_x %*% mu_x + Matrix::t(Z) %*% Q_e %*% y)
+  mu_nu <- make_mu_nu(priors)
+  Q_nu <- make_Q_nu(priors)
+  Q_e <- make_Q_e(theta_samp[i, ])
+
+  mu_x <- make_mu_x(Z, mu_nu)
+  Q_x <- make_Q_x(Q_e, Z, Q_nu)
+  chol_Q_x <- Cholesky(Q_x)
+
+  B <- make_B(Z)
+
+  Q_x_cond_etahat <- make_Q_x_cond_etahat(mu_x, Q_x, B)
+  mu_x_cond_etahat <- make_mu_x_cond_etahat(mu_x, Q_x, Q_x_cond_etahat, B)
+  chol_Q_x_cond_etahat <- Cholesky(Q_x_cond_etahat)
 
 
-  mu_yx_cond_theta <- rbind(Z %*% mu_x_cond_y, mu_x_cond_y)
-
-  Q_yx_cond_theta <- Matrix::Matrix(
-    data = 0,
-    nrow = nrow(mu_yx_cond_theta),
-    ncol = nrow(mu_yx_cond_theta)
-  )
-
-  # Upper left of matrix
-  Q_yx_cond_theta[1:len_y, 1:len_y] <- Q_e
-  # Upper right of matrix
-  Q_yx_cond_theta[1:len_y, (len_y + 1):(len_y + len_x)] <- -Q_e %*% Z
-  # Lower left of matrix
-  Q_yx_cond_theta[(len_y + 1):(len_y + len_x), 1:len_y] <- - Matrix::t(Z) %*% Q_e
-  # Lower right of matrix
-  Q_yx_cond_theta[(len_y + 1):(len_y + len_x), (len_y + 1):(len_y + len_x)] <- Q_x + Matrix::t(Z) %*% Q_e %*% Z
-
-  chol_Q_yx_cond_theta <- Matrix::Cholesky(Q_yx_cond_theta)
-
-  yx_samp[i, ] <- sparseMVN::rmvn.sparse(
-    n = 1,
-    mu = mu_yx_cond_theta,
-    CH = chol_Q_yx_cond_theta,
-    prec = TRUE
-  ) |>
-    as.numeric()
-
-  y_hat <- Matrix::Matrix(yx_samp[i, seq_len(len_y)])
-  x <- Matrix::Matrix(yx_samp[i, len_y + seq_len(len_x)])
-
+  x_samp[i, ] <- sample_pi_x_cond_etahat(mu_x_cond_etahat, chol_Q_x_cond_etahat)
+  x <- x_samp[i, ]
+  eta <- x[1:len_eta]
+  nu <- x[-(1:len_eta)]
 
 
   while (i < n_samp) {
@@ -150,67 +103,70 @@ ms_smooth_sample <- function(chain, p, y, len_y, x, len_x, Q_e, chol_Q_e, eta_ha
     p()
 
 
+    theta_prop <- propose_theta(theta_samp[i - 1, ])
+
+    mu_nu_prop <- make_mu_nu(priors)
+    Q_nu_prop <- make_Q_nu(priors)
+    Q_e_prop <- make_Q_e(theta_prop)
+
+    mu_x_prop <- make_mu_x(Z, mu_nu_prop)
+    Q_x_prop <- make_Q_x(Q_e_prop, Z, Q_nu_prop)
+    chol_Q_x_prop <- Cholesky(Q_x_prop)
+
+    Q_x_cond_etahat_prop <- make_Q_x_cond_etahat(mu_x_prop, Q_x_prop, B)
+    mu_x_cond_etahat_prop <- make_mu_x_cond_etahat(mu_x_prop, Q_x_prop, Q_x_cond_etahat_prop, B)
+    chol_Q_x_cond_etahat_prop <- Cholesky(Q_x_cond_etahat_prop)
 
 
-    theta_samp[i, ] <- met_hast_theta(
+    pi_new <- pi_theta_cond_etahat(
+      theta_prop,
+      eta,
+      x, mu_x_prop, chol_Q_x_prop,
+      mu_x_cond_etahat_prop, chol_Q_x_cond_etahat_prop
+    )
+
+    pi_old <- pi_theta_cond_etahat(
       theta_samp[i - 1, ],
-      y,
-      x,
-      mu_x,
-      chol_Q_x,
-      Z,
-      chol_Q_e,
-      mu_x_cond_y,
-      chol_Q_x_cond_y
+      eta,
+      x, mu_x, chol_Q_x,
+      mu_x_cond_etahat, chol_Q_x_cond_etahat
     )
 
-    mu_x <- Matrix::Matrix(theta_samp[i, 1:4])
-    Q_x <- Matrix::.sparseDiagonal(n = nrow(mu_x), x = exp(theta_samp[i, 5:8])^2)
-    chol_Q_x <- Matrix::Cholesky(Q_x)
+    if (exp(pi_new - pi_old) > runif(1)) {
+
+      theta_samp[i, ] <- theta_prop
+      mu_nu <- mu_nu_prop
+      Q_nu <- Q_nu_prop
+      Q_e <- Q_e_prop
+
+      mu_x <- mu_x_prop
+      Q_x <- Q_x_prop
+      chol_Q_x <- chol_Q_x_prop
+
+      Q_x_cond_etahat <- Q_x_cond_etahat_prop
+      mu_x_cond_etahat <- mu_x_cond_etahat_prop
+      chol_Q_x_cond_etahat <- chol_Q_x_cond_etahat_prop
 
 
-    Q_x_cond_y <- Q_x + Matrix::t(Z) %*% Q_e %*% Z
-    chol_Q_x_cond_y <- Matrix::Cholesky(Q_x_cond_y)
 
-    mu_x_cond_y <- Matrix::solve(Q_x_cond_y, Q_x %*% mu_x + Matrix::t(Z) %*% Q_e %*% y)
+    } else {
 
+      theta_samp[i, ] <- theta_samp[i - 1, ]
 
-    mu_yx_cond_theta <- rbind(Z %*% mu_x_cond_y, mu_x_cond_y)
+    }
 
-    Q_yx_cond_theta <- Matrix::Matrix(
-      data = 0,
-      nrow = nrow(mu_yx_cond_theta),
-      ncol = nrow(mu_yx_cond_theta)
-    )
-
-    # Upper left of matrix
-    Q_yx_cond_theta[1:len_y, 1:len_y] <- Q_e
-    # Upper right of matrix
-    Q_yx_cond_theta[1:len_y, (len_y + 1):(len_y + len_x)] <- -Q_e %*% Z
-    # Lower left of matrix
-    Q_yx_cond_theta[(len_y + 1):(len_y + len_x), 1:len_y] <- - Matrix::t(Z) %*% Q_e
-    # Lower right of matrix
-    Q_yx_cond_theta[(len_y + 1):(len_y + len_x), (len_y + 1):(len_y + len_x)] <- Q_x + Matrix::t(Z) %*% Q_e %*% Z
-
-    chol_Q_yx_cond_theta <- Matrix::Cholesky(Q_yx_cond_theta)
-
-    yx_samp[i, ] <- sparseMVN::rmvn.sparse(
-      n = 1,
-      mu = mu_yx_cond_theta,
-      CH = chol_Q_yx_cond_theta,
-      prec = TRUE
-    ) |>
-      as.numeric()
-
-    y_hat <- Matrix::Matrix(yx_samp[i, seq_len(len_y)])
-    x <- Matrix::Matrix(yx_samp[i, len_y + seq_len(len_x)])
-
+    x_samp[i, ] <- sample_pi_x_cond_etahat(mu_x_cond_etahat, chol_Q_x_cond_etahat)
+    x <- x_samp[i, ]
+    eta <- x[1:len_eta]
+    nu <- x[-(1:len_eta)]
 
   }
 
+
+
   list(
     "theta" = theta_samp,
-    "yx" = yx_samp
+    "x" = x_samp
   )
 
 }

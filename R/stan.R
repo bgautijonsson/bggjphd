@@ -1,27 +1,29 @@
-#' Title
+#' Use STAN to fit a similar model to the latent gaussian model in Max & Smooth
 #'
-#' @param data
-#' @param n_samp
-#' @param n_chain
-#' @param parallel_chains
+#' @param data The data to use in model fitting
+#' @param n_chain The number of chains
+#' @param parallel_chains How many chains to sample in parallel
+#' @param iter_warmup Number of samples in the warmup phase
+#' @param iter_sampling Number of samples after warmup
+#' @param init How to initialize the parameters (See cmdstanr documentation)
+#' @param refresh How often to print updates (See cmdstanr documentation)
 #'
-#' @return
+#' @return A cmdstanr model object that has been used to sample from the posterior
 #' @export
 #'
-#' @examples
 fit_stan <- function(data, iter_warmup = 500, iter_sampling = 500, n_chain = 4, parallel_chains = 4, init = 0, refresh = 100) {
   stan_mod <- load_model()
 
   data <- data |>
-    dplyr::arrange(station, year)
+    arrange(station, year)
 
   N_obs <- nrow(data)
   N_stations <- length(unique(data$station))
 
   start_stop <-  data |>
-    dplyr::mutate(id = row_number()) |>
-    dplyr::group_by(station) |>
-    dplyr::summarise(start = min(id),
+    mutate(id = row_number()) |>
+    group_by(station) |>
+    summarise(start = min(id),
                      stop = max(id))
 
   start <- start_stop$start
@@ -53,15 +55,15 @@ fit_stan <- function(data, iter_warmup = 500, iter_sampling = 500, n_chain = 4, 
     parallel_chains = parallel_chains,
     init = init
   )
+
+  stan_fit
 }
 
 
 #' Title
 #'
-#' @return
-#' @export
+#' @return Returns the Stan version of the model
 #'
-#' @examples
 load_model <- function() {
   cmdstanr::cmdstan_model("inst/Stan/model.stan")
 }

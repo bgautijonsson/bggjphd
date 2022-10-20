@@ -2,13 +2,13 @@
 % Please edit documentation in R/smooth_matrices.R
 \name{make_Z}
 \alias{make_Z}
-\title{Title}
+\title{Make the model matrix for eta}
 \usage{
-make_Z(eta_hat)
+make_Z(fmla = NULL)
 }
 \arguments{
-\item{eta_hat}{}
+\item{fmla}{}
 }
 \description{
-Title
+Make the model matrix for eta
 }

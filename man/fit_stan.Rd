@@ -2,7 +2,7 @@
 % Please edit documentation in R/stan.R
 \name{fit_stan}
 \alias{fit_stan}
-\title{Title}
+\title{Use STAN to fit a similar model to the latent gaussian model in Max & Smooth}
 \usage{
 fit_stan(
   data,
@@ -15,8 +15,23 @@ fit_stan(
 )
 }
 \arguments{
-\item{parallel_chains}{}
+\item{data}{The data to use in model fitting}
+
+\item{iter_warmup}{Number of samples in the warmup phase}
+
+\item{iter_sampling}{Number of samples after warmup}
+
+\item{n_chain}{The number of chains}
+
+\item{parallel_chains}{How many chains to sample in parallel}
+
+\item{init}{How to initialize the parameters (See cmdstanr documentation)}
+
+\item{refresh}{How often to print updates (See cmdstanr documentation)}
+}
+\value{
+A cmdstanr model object that has been used to sample from the posterior
 }
 \description{
-Title
+Use STAN to fit a similar model to the latent gaussian model in Max & Smooth
 }

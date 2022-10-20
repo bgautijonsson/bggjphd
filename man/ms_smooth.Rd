@@ -2,13 +2,20 @@
 % Please edit documentation in R/smooth.R
 \name{ms_smooth}
 \alias{ms_smooth}
-\title{Title}
+\title{Perform the second step, smooth, to sample from the posterior}
 \usage{
-ms_smooth(fit_dat, n_samp = 500, n_chain = 4)
+ms_smooth(fmla = station ~ param - 1, theta = NULL, n_samp = 500, n_chain = 4)
 }
 \arguments{
-\item{n_chain}{}
+\item{fmla}{}
+
+\item{n_samp}{The number of samples total (warmup + sampling).}
+
+\item{n_chain}{The number of chains to sample from.}
+}
+\value{
+Results from the Bayesian samples
 }
 \description{
-Title
+Perform the second step, smooth, to sample from the posterior
 }

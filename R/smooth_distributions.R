@@ -7,16 +7,10 @@
 #'
 #' @examples
 pi_theta <- function(theta) {
-  mus <- theta[1:4]
-  log_prec <- theta[5:8]
-
-  mu_mu <- c(2.5, -1, -0.3, 0.4)
-  mu_prec <- c(3, 2, 1, 1)
-
+  log_sqrt_prec_e <- theta[1:4]
   out <- 0
   for (i in 1:4) {
-    out <- out + dnorm(mus[i], mean = mu_mu[i], sd = 3, log = T)
-    out <- out + dnorm(log_prec[i], mean = mu_prec[i], sd = 3, log = T)
+    out <- out + dnorm(log_sqrt_prec_e[i], mean = 2, sd = 4, log = T)
   }
 
   out
@@ -40,56 +34,17 @@ pi_theta <- function(theta) {
 #' @export
 #'
 #' @examples
-pi_theta_cond_y <- function(theta, y, x, mu_x, chol_Q_x, Z, chol_Q_e,
-                            mu_x_cond_y, chol_Q_x_cond_y) {
+pi_theta_cond_etahat <- function(
+    theta,
+    eta,
+    x, mu_x, chol_Q_x,
+    mu_x_cond_etahat, chol_Q_x_cond_etahat
+) {
   pi_theta(theta) +
-    pi_y_cond_x_theta(y = y, Z = Z, x = x, chol_Q_e = chol_Q_e) +
-    pi_x_cond_theta(x = x, mu_x = mu_x, chol_Q_x = chol_Q_x) -
-    pi_x_cond_theta_y(x = x, mu_x_cond_y = mu_x_cond_y, chol_Q_x_cond_y = chol_Q_x_cond_y)
+    pi_etahat_cond_x_theta(eta) +
+    pi_x_cond_theta(x, mu_x, chol_Q_x) -
+    pi_x_cond_theta_etahat(x, mu_x_cond_etahat, chol_Q_x_cond_etahat)
 }
-
-#' Log density of x conditioned on y
-#'
-#' @param x The current samples of latent parameters x
-#' @param mu_x_cond_y The mean of x when conditioning on y
-#' @param chol_Q_x_cond_y Cholesky decomposition of precision matrix of x when conditioning on y
-#'
-#' @return The log density of x when conditioning on y
-#' @export
-#'
-#' @examples
-pi_x_cond_theta_y <- function(x, mu_x_cond_y, chol_Q_x_cond_y) {
-  sparseMVN::dmvn.sparse(
-    x = Matrix::t(x),
-    mu = as.vector(mu_x_cond_y),
-    CH = chol_Q_x_cond_y,
-    prec = TRUE,
-    log = TRUE
-  )
-}
-
-
-#' Log density of y given x and theta
-#'
-#' @param y The current samples of y
-#' @param Z The model matrix as in y = Z * x + e
-#' @param x The current samples of the latent parameters x
-#' @param chol_Q_e Block diagonal matrix of Hessian matrices from the Max step
-#'
-#' @return The log density of y conditioned on x and theta
-#' @export
-#'
-#' @examples
-pi_y_cond_x_theta <- function(y, Z, x, chol_Q_e) {
-  sparseMVN::dmvn.sparse(
-    x = Matrix::t(y),
-    mu = as.vector(Z %*% x),
-    CH = chol_Q_e,
-    prec = TRUE,
-    log = TRUE
-  )
-}
-
 
 
 #' The log density of x conditioned on theta
@@ -103,11 +58,76 @@ pi_y_cond_x_theta <- function(y, Z, x, chol_Q_e) {
 #'
 #' @examples
 pi_x_cond_theta <- function(x, mu_x, chol_Q_x) {
-  sparseMVN::dmvn.sparse(
-    x = Matrix::t(x),
+  t <- Matrix::t
+  dmvn.sparse(
+    x = t(x),
     mu = as.vector(mu_x),
     CH = chol_Q_x,
     prec = TRUE,
     log = TRUE
   )
 }
+
+#' Log density of x conditioned on etahat and theta
+#'
+#' @param mu_x_cond_etahat
+#' @param chol_Q_x_cond_etahat
+#' @param x The current samples of latent parameters x
+#'
+#' @return The log density of x when conditioning on y
+#' @export
+#'
+#' @examples
+pi_x_cond_theta_etahat <- function(x, mu_x_cond_etahat, chol_Q_x_cond_etahat) {
+  t <- Matrix::t
+  dmvn.sparse(
+    x = t(x),
+    mu = as.vector(mu_x_cond_etahat),
+    CH = chol_Q_x_cond_etahat,
+    prec = TRUE,
+    log = TRUE
+  )
+}
+
+
+
+
+#' Log density of y given x and theta
+#'
+#' @param y The current samples of y
+#' @param Z The model matrix as in y = Z * x + e
+#' @param x The current samples of the latent parameters x
+#' @param chol_Q_e Block diagonal matrix of Hessian matrices from the Max step
+#'
+#' @return The log density of y conditioned on x and theta
+#' @export
+#'
+#' @examples
+pi_etahat_cond_x_theta <- function(eta) {
+  t <- Matrix::t
+  dmvn.sparse(
+    x = t(eta_hat),
+    mu = as.vector(eta),
+    CH = chol_Q_etay,
+    prec = TRUE,
+    log = TRUE
+  )
+}
+
+#' Title
+#'
+#' @param mu_x_cond_etahat
+#' @param chol_Q_x_cond_etahat
+#'
+#' @return
+sample_pi_x_cond_etahat <- function(mu_x_cond_etahat, chol_Q_x_cond_etahat) {
+  sparseMVN::rmvn.sparse(
+    n = 1,
+    mu = mu_x_cond_etahat,
+    CH = chol_Q_x_cond_etahat,
+    prec = TRUE
+  ) |>
+    as.numeric()
+}
+
+

@@ -2,26 +2,13 @@
 % Please edit documentation in R/smooth.R
 \name{ms_smooth_sample}
 \alias{ms_smooth_sample}
-\title{Title}
+\title{Helper function for performing sampling}
 \usage{
-ms_smooth_sample(
-  chain,
-  p,
-  y,
-  len_y,
-  x,
-  len_x,
-  Q_e,
-  chol_Q_e,
-  eta_hat,
-  Z,
-  priors,
-  n_samp = 500
-)
+ms_smooth_sample(chain, p, fmla, theta, n_samp = 500)
 }
 \arguments{
-\item{n_samp}{}
+\item{fmla}{}
 }
 \description{
-Title
+Helper function for performing sampling
 }

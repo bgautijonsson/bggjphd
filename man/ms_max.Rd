@@ -4,10 +4,13 @@
 \alias{ms_max}
 \title{Max step of Max-and-Smooth}
 \usage{
-ms_max(data)
+ms_max()
 }
 \arguments{
 \item{data}{The data on which to perform the Max step}
+}
+\value{
+A tibble with one row per station and nested columns containing results from the Max step
 }
 \description{
 Max step of Max-and-Smooth

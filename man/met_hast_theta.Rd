@@ -6,20 +6,19 @@
 \usage{
 met_hast_theta(
   theta,
-  y,
+  Z,
+  nu,
   x,
   mu_x,
   chol_Q_x,
-  Z,
-  chol_Q_e,
-  mu_x_cond_y,
-  chol_Q_x_cond_y
+  mu_x_cond_etahat,
+  chol_Q_x_cond_etahat
 )
 }
 \arguments{
 \item{theta}{The current value of theta}
 
-\item{y}{The current value of y}
+\item{Z}{Model matrix for y as in y = Z * x + e}
 
 \item{x}{The current value of x}
 
@@ -27,7 +26,7 @@ met_hast_theta(
 
 \item{chol_Q_x}{Cholesky decomposition of precision matrix of x}
 
-\item{Z}{Model matrix for y as in y = Z * x + e}
+\item{y}{The current value of y}
 
 \item{chol_Q_e}{Cholesky decomposition of banded diagonal matrix containing the Hessian matrices for each station
 from the Max step}

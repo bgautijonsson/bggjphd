@@ -6,6 +6,9 @@
 \usage{
 load_model()
 }
+\value{
+Returns the Stan version of the model
+}
 \description{
 Title
 }

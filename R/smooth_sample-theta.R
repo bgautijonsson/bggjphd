@@ -64,7 +64,7 @@ met_hast_theta <- function(
 #' @examples
 propose_theta <- function(theta) {
   d <- length(theta)
-  mh_sd <-  2.3 * d ^(-1/2)
+  mh_sd <-  2.4 * d ^(-1/2)
 
   mh_samples <- rnorm(n = d, mean = 0, sd = mh_sd)
 

@@ -22,6 +22,7 @@ library(future)
 library(bayesplot)
 # devtools::load_all()
 library(bggjphd)
+library(GGally)
 
 n_iter <- 2000
 
@@ -35,6 +36,8 @@ with_progress({
 })
 ```
 
+
+
 ```{r}
 results |> 
   filter(.iteration > n_iter/2) |> 
@@ -47,19 +50,45 @@ results |>
 ```{r}
 results |> 
   filter(.iteration > n_iter/2) |> 
+  subset_draws() |> 
+  summarise_draws() |> 
+  arrange(desc(rhat))
+```
+
+
+```{r}
+results |> 
+  # filter(.iteration > n_iter/2) |> 
   subset_draws("theta") |> 
   mcmc_trace()
 ```
 
 ```{r}
 results |> 
+  subset_draws("theta[1]") |> 
+  as_tibble() |> 
+  rename(value = "theta[1]") |> 
+  group_by(.chain) |> 
+  mutate(accept = 1 * (value != lag(value))) |> 
+  ungroup() |> 
+  ggplot(aes(.iteration, accept, group = .chain)) +
+  geom_smooth(method = "loess", span = 0.3)
+```
+
+```{r}
+plot_dat <- results |> 
   filter(.iteration > n_iter/2) |> 
-  subset_draws(c("theta", "mu_phi", "mu_psi", "mu_gamma", "mu_tau")) |> 
-  as_draws_rvars() |> 
-  map(
-    posterior::rhat
+  subset_draws(
+    c("phi", "psi", "gamma", "tau")
   ) |> 
-  reduce(c) |> 
-  mcmc_rhat()
+  summarise_draws()
+
+p <- plot_dat |> 
+  mutate(station = parse_number(variable),
+         variable = str_replace(variable, "\\[[0-9]+\\]", "")) |> 
+  select(station, variable, mean) |> 
+  pivot_wider(names_from = variable, values_from = mean) |> 
+  select(-station) |> 
+  ggpairs()
 ```
 

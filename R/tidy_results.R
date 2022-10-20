@@ -53,9 +53,9 @@ tidy_helper <- function(datalist) {
       rep(
         c(
           "psi",
-          "gamma",
           "tau",
-          "phi"
+          "phi",
+          "gamma"
         ),
         times = nrow(stations)
       ),
@@ -70,9 +70,9 @@ tidy_helper <- function(datalist) {
     ),
     c(
       "mu_psi",
-      "mu_gamma",
       "mu_tau",
-      "mu_phi"
+      "mu_phi",
+      "mu_gamma"
     )
   )
 

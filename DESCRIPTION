@@ -4,9 +4,8 @@ Version: 0.0.1
 Authors@R: 
     person("Brynjólfur Gauti", "Guðrúnar Jónsson", , "brynjolfur@hi.is", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4730-5584"))
-Description: I'm making and maintaining this package to go along side my PhD work for reproducibility.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: I'm making and maintaining this package to go along with my PhD work for reproducibility.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
@@ -24,11 +23,15 @@ Depends:
     tidyr
 LazyData: true
 Imports: 
+    bayesplot,
+    cowplot,
     evd,
     furrr,
     future,
     here,
+    kableExtra,
     progressr,
+    scales,
     vroom
 Suggests: 
     knitr,
@@ -36,6 +39,4 @@ Suggests:
     devtools,
     usethis,
     tidyverse,
-    GGally,
-    cowplot
-VignetteBuilder: knitr
+    GGally

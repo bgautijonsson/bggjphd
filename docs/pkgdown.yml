@@ -2,8 +2,9 @@ pandoc: 2.19.2
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
+  data: data.html
   max: max.html
-last_built: 2022-10-26T13:42Z
+last_built: 2022-10-26T14:35Z
 urls:
   reference: http://bggj.is/bggjphd/reference
   article: http://bggj.is/bggjphd/articles

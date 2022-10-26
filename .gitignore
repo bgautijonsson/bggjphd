@@ -7,3 +7,4 @@
 /Meta/
 yearly_maximum_per_hour_with_neighbors.rds
 **/** [0-9]**
+inst/doc

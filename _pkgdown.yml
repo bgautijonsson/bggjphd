@@ -5,3 +5,19 @@ template:
 
 development:
   mode: release
+
+
+reference:
+  - title: "The Max Step"
+    desc: >
+      Functions and objects for performing the Max step of the Max & Smooth algorithm
+    contents:
+    - ms_max
+    - fit_gev_trend
+    - neg_log_lik_gev_trend
+    - starts_with("link_")
+  - title: "The Smooth Step"
+    desc: >
+      Functions and objects for performing the Smooth step.
+    contents:
+      - lacks_concepts("stuff")

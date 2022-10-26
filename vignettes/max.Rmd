@@ -10,7 +10,11 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 10,
+  out.width = "100%",
+  fig.asp = 0.621,
+  echo = FALSE
 )
 
 ```
@@ -22,8 +26,27 @@ knitr::opts_chunk$set(
 library(bggjphd)
 library(tidyverse)
 library(GGally)
+library(cowplot)
+theme_set(theme_half_open())
 ```
 
+
+# Maximum Likelihood Estimation
+
+## Transformed parameters
+
+Having performed the Max step and saved the ML estimates we can easily load them by fetching the object `station_estimates`. Here we plot the distribution of transformed estimates.
+
+$$
+\begin{aligned}
+\psi &= \log(\mu) \\
+\tau &= \log(\frac{\sigma}{\mu}) = \log(\sigma) - \log(\mu) \\
+\phi &= \mathrm{logit}(\xi, \text{ scale}=1.6) - 0.8 \\
+\gamma &= \mathrm{logit}(\Delta, \text{ scale}=0.02) - 0.01.
+\end{aligned}
+$$
+
+These transformations make it so that $\xi$ can take values between $-0.8$ and $0.8$, and $\Delta$ can take values between $-0.01$ and $0.01$. 
 
 ```{r}
 d <- station_estimates |> 
@@ -38,6 +61,35 @@ d <- station_estimates |>
 d |> 
   ggplot(aes(value)) +
   geom_histogram(bins = 60) +
-  facet_wrap("name", scales = "free")
+  facet_wrap("name", scales = "free") +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Distributions of GEV parameters from Max step"
+  )
+```
+
+## GEV parameters
+
+We might also be interested in plotting the back-transformed parameters, i.e. $\mu$, $\sigma$, $\xi$, and $\Delta$
+
+```{r}
+d |> 
+  pivot_wider() |> 
+  mutate(mu = exp(psi),
+         sigma = exp(tau + psi),
+         xi = link_shape_inverse(phi),
+         delta = link_trend_inverse(gamma)) |> 
+  select(-psi, -tau, -phi, -gamma) |> 
+  pivot_longer(c(-station)) |> 
+  mutate(name = fct_relevel(name, "mu", "sigma", "xi", "delta")) |> 
+  ggplot(aes(value)) +
+  geom_histogram(bins = 100) +
+  facet_wrap("name", scales = "free") +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Distributions of backtransformed GEV parameters from Max step"
+  )
 ```
 

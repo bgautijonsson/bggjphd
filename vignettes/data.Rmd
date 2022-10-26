@@ -1,0 +1,53 @@
+---
+title: "About the Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10,
+  out.width = "100%"
+)
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+
+library(bggjphd)
+library(tidyverse)
+library(GGally)
+library(cowplot)
+theme_set(theme_half_open())
+```
+
+
+```{r}
+#| fig.asp: 0.8
+#| echo: false
+precip |> 
+  filter(station <= 10) |> 
+  mutate(
+    period = case_when(
+      year <= 2000 ~ "1980 - 2000",
+      year <= 2040 ~ "2020 - 2040",
+      year <= 2080 ~ "2060 - 2080",
+    )
+  ) |> 
+  ggplot(aes(year, precip)) +
+  geom_line(aes(group = station)) +
+  facet_wrap("period", ncol = 1, scales = "free") +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Maximum daily precipitation for ten stations",
+    subtitle = "Shown for each of the three modelled periods"
+  )
+```

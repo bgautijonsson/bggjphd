@@ -2,3 +2,6 @@ url: http://bggj.is/bggjphd/
 template:
   bootstrap: 5
 
+
+development:
+  mode: release

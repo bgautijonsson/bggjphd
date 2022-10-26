@@ -1,10 +1,6 @@
 ---
-title: "Putting the Max in Max & Smooth"
+title: "The Max Step"
 output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{max}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -16,7 +12,6 @@ knitr::opts_chunk$set(
   fig.asp = 0.621,
   echo = FALSE
 )
-
 ```
 
 ```{r}

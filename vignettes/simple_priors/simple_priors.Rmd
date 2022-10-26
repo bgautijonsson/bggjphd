@@ -1,28 +1,46 @@
 ---
-title: "basics"
+title: "The Smooth Step: Simple exchangeable hierarchical priors"
 output: rmarkdown::html_vignette
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 10,
+  out.width = "100%",
+  fig.asp = 0.621,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
 ```{r setup}
-#| eval: false
+library(bggjphd)
 library(tidyverse)
 library(progressr)
 library(future)
 library(bayesplot)
-# devtools::load_all()
-library(bggjphd)
 library(GGally)
 library(scales)
 library(cowplot)
+library(kableExtra)
+theme_set(theme_half_open())
+```
 
 
+The results for this analysis were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
+
+```{r}
+#| eval: false
+#| echo: true
+n_iter <- 4000
+plan(multisession, workers = 4)
+with_progress({
+  results <- ms_smooth(n_samp = n_iter)
+})
+plan(sequential)
 ```
 
 
@@ -41,16 +59,20 @@ if (!file.exists("results.rds")) {
 }
 ```
 
+# Parameters
+
+## Hyperpriors
+
 ```{r}
 results |> 
   filter(.iteration > n_iter/2) |> 
   subset_draws(
-    c("mu_psi", "mu_phi", "mu_tau", "mu_gamma", "theta"), 
+    "theta", 
   ) |> 
-  summarise_draws()
+  summarise_draws() |> 
+  kable(digits = 3) |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
-
-
 
 ```{r}
 results |> 
@@ -71,6 +93,8 @@ results |>
   geom_smooth(method = "loess", span = 0.3, se = 0)
 ```
 
+
+## GEV Parameters
 
 ```{r}
 if (!file.exists("station_mcmc_ml.rds")) {
@@ -103,5 +127,19 @@ if (!file.exists("station_mcmc_ml.rds")) {
 }
 
 plot_dat <- read_rds("station_mcmc_ml.rds")
+```
+
+
+```{r}
+plot_dat |> 
+  ggplot(aes(ml_estimate, mcmc_mean)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2) +
+  geom_point() +
+  facet_wrap("variable", scales = "free") +
+  labs(
+    x = "ML Estimate (Max step)",
+    y = "Posterior Mean (Smooth step)",
+    title = "Comparing estimates from the Max and the Smooth steps"
+  )
 ```
 

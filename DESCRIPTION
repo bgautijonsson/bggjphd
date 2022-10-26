@@ -24,7 +24,6 @@ Depends:
     tidyr
 LazyData: true
 Imports: 
-    cmdstanr,
     evd,
     furrr,
     future,

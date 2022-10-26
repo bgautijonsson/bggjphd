@@ -16,19 +16,7 @@
     <loc>http://bggj.is/bggjphd/index.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/fit_gev_trend 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/fit_gev_trend.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/fit_stan 2.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/fit_stan.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/get_priors 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/get_priors.html</loc>
@@ -37,163 +25,79 @@
     <loc>http://bggj.is/bggjphd/reference/index.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/init_eta 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/init_eta.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/init_nu 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/init_nu.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/init_params 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/init_params.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/init_theta 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/init_theta.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/link_shape 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/link_shape.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/link_shape_inverse 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/link_shape_inverse.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/link_trend 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/link_trend.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/link_trend_inverse 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/link_trend_inverse.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/load_model 2.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/load_model.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_B 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_B.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_Q_e 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_e.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/make_Q_nu 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_nu.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_Q_x 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_x.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/make_Q_x_cond_etahat 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_x_cond_etahat.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_Z 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_Z.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/make_mu_nu 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_mu_nu.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_mu_nu_cond_etahat 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_mu_nu_cond_etahat.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/make_mu_x 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_mu_x.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/make_mu_x_cond_etahat 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_mu_x_cond_etahat.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/make_x 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/make_x.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/ms_max 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/ms_max.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/ms_smooth 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/ms_smooth.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/ms_smooth_sample 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/ms_smooth_sample.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/neg_log_lik_gev_trend 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/neg_log_lik_gev_trend.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/pi_etahat_cond_x_theta 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/pi_etahat_cond_x_theta.html</loc>
   </url>
   <url>
-    <loc>http://bggj.is/bggjphd/reference/pi_theta 2.html</loc>
-  </url>
-  <url>
     <loc>http://bggj.is/bggjphd/reference/pi_theta.html</loc>
-  </url>
-  <url>
-    <loc>http://bggj.is/bggjphd/reference/pi_theta_cond_etahat 2.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/pi_theta_cond_etahat.html</loc>

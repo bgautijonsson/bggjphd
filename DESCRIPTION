@@ -1,5 +1,5 @@
 Package: bggjphd
-Title: BGGJ PhD Code
+Title: The code and data for my PhD research
 Version: 0.0.0.9000
 Authors@R: 
     person("Brynjólfur Gauti", "Guðrúnar Jónsson", , "brynjolfur@hi.is", role = c("aut", "cre"),

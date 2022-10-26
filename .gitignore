@@ -3,8 +3,7 @@
 .Rdata
 .httr-oauth
 .DS_Store
-inst/doc
-data
-*.rds
 /doc/
 /Meta/
+docs
+yearly_maximum_per_hour_with_neighbors.rds

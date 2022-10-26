@@ -4,7 +4,7 @@
 \alias{ms_max}
 \title{Max step of Max-and-Smooth}
 \usage{
-ms_max()
+ms_max(priors = "default")
 }
 \arguments{
 \item{data}{The data on which to perform the Max step}

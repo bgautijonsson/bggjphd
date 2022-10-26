@@ -35,14 +35,14 @@ make_Z <- function(fmla = NULL) {
 #' @export
 #'
 #' @examples
-make_eta <- function(Z, nu, theta) {
+init_eta <- function(Z, nu, theta) {
   n_stations <- nrow(stations)
   n_param <- nrow(Z)
 
   mean <- Z %*% nu
 
-  log_sqrt_prec <- theta$log_sqrt_prec_e
-  sd <-exp(-log_sqrt_prec)
+  log_prec <- theta
+  sd <- sqrt(exp(-log_prec))
   sd <- rep(sd, times = n_stations)
 
   out <- rnorm(
@@ -67,11 +67,11 @@ make_eta <- function(Z, nu, theta) {
 #' @export
 #'
 #' @examples
-make_nu <- function(priors) {
+init_nu <- function(priors) {
 
   n <- length(priors$mu_nu)
 
-  nu <- rnorm(n = n, mean = priors$mu_nu, sd = exp(-priors$log_sqrt_prec_nu))
+  nu <- rnorm(n = n, mean = priors$mu_nu, sd = sqrt(exp(-priors$log_prec_nu)))
 
   Matrix(
     data = nu,
@@ -144,7 +144,7 @@ make_mu_nu <- function(priors) {
 make_Q_nu <- function(priors) {
   .sparseDiagonal(
     n = 4,
-    x = exp(2 * priors$log_sqrt_prec_nu)
+    x = exp(priors$log_prec)
   )
 }
 
@@ -159,8 +159,8 @@ make_Q_nu <- function(priors) {
 make_Q_e <- function(theta) {
   n_stations <- nrow(stations)
 
-  log_sqrt_prec <- theta
-  prec <- exp(2 * log_sqrt_prec)
+  log_prec<- theta
+  prec <- exp(log_prec)
   prec <- rep(prec, times = n_stations)
 
   .sparseDiagonal(
@@ -208,10 +208,10 @@ make_Q_x <- function(Q_e, Z, Q_nu) {
 #' @export
 #'
 #' @examples
-make_mu_x <- function(Z, nu) {
+make_mu_x <- function(Z, mu_nu) {
   rbind(
-    Z %*% nu,
-    nu
+    Z %*% mu_nu,
+    mu_nu
   )
 }
 

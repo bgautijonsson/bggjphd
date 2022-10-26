@@ -1,0 +1,39 @@
+---
+title: "Putting the Max in Max & Smooth"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{max}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(bggjphd)
+library(tidyverse)
+library(GGally)
+```
+
+
+```{r}
+d <- station_estimates |> 
+  ungroup() |> 
+  select(station, par) |> 
+  unnest(par) |> 
+  mutate(name = rep(c("psi", "tau", "phi", "gamma"), max(station)) |> 
+           factor(levels = c("psi", "tau", "phi", "gamma"))) |> 
+  rename(value = par)
+
+
+d |> 
+  ggplot(aes(value)) +
+  geom_histogram(bins = 60) +
+  facet_wrap("name", scales = "free")
+```
+

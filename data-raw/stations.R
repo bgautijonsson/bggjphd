@@ -4,8 +4,8 @@
 d <- vroom::vroom(
   "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
 ) |>
-  filter(proj_x <= 10,
-         proj_y <= 10)
+  filter(proj_x <= 30,
+         proj_y <= 30)
 
 
 ids <- d |>

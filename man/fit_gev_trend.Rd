@@ -4,7 +4,7 @@
 \alias{fit_gev_trend}
 \title{A function to calculate and return parameters and Hessian for the generalized extreme distribution with trend}
 \usage{
-fit_gev_trend(data, ...)
+fit_gev_trend(data, priors = "default", ...)
 }
 \arguments{
 \item{data}{The tibble on which to calculate GEV parameters}

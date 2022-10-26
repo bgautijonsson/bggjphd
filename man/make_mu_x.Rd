@@ -4,7 +4,7 @@
 \alias{make_mu_x}
 \title{Title}
 \usage{
-make_mu_x(Z, nu)
+make_mu_x(Z, mu_nu)
 }
 \arguments{
 \item{mu_nu}{}

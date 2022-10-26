@@ -54,48 +54,25 @@ ms_smooth_sample <- function(
 
   p()
 
-  theta <- get_theta()
-  priors <- get_priors()
-
-  Z <- make_Z()
-
-  len_eta <- nrow(Z)
-  len_nu <- ncol(Z)
-
-  nu <- make_nu(priors)
-  eta <- make_eta(Z, nu, theta)
-  x <- make_x(nu, eta)
+  params <- init_params()
+  len_eta <- nrow(params$Z)
+  len_nu <- ncol(params$Z)
 
 
-  theta_samp <- matrix(nrow = n_samp, ncol = length(unlist(theta)))
+  theta_samp <- matrix(nrow = n_samp, ncol = length(params$theta))
   x_samp <- matrix(nrow = n_samp, ncol = len_eta + len_nu)
 
 
   i <- 1
 
-  theta_samp[i, ] <- unlist(theta)
+  theta_samp[i, ] <- params$theta
 
 
+  x_samp[i, ] <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
 
-  mu_nu <- make_mu_nu(priors)
-  Q_nu <- make_Q_nu(priors)
-  Q_e <- make_Q_e(theta_samp[i, ])
-
-  mu_x <- make_mu_x(Z, mu_nu)
-  Q_x <- make_Q_x(Q_e, Z, Q_nu)
-  chol_Q_x <- Cholesky(Q_x)
-
-  B <- make_B(Z)
-
-  Q_x_cond_etahat <- make_Q_x_cond_etahat(mu_x, Q_x, B)
-  mu_x_cond_etahat <- make_mu_x_cond_etahat(mu_x, Q_x, Q_x_cond_etahat, B)
-  chol_Q_x_cond_etahat <- Cholesky(Q_x_cond_etahat)
-
-
-  x_samp[i, ] <- sample_pi_x_cond_etahat(mu_x_cond_etahat, chol_Q_x_cond_etahat)
-  x <- x_samp[i, ]
-  eta <- x[1:len_eta]
-  nu <- x[-(1:len_eta)]
+  params$x <- x_samp[i, ]
+  params$eta <- params$x[1:len_eta]
+  params$nu <- params$x[-(1:len_eta)]
 
 
   while (i < n_samp) {
@@ -103,62 +80,15 @@ ms_smooth_sample <- function(
     p()
 
 
-    theta_prop <- propose_theta(theta_samp[i - 1, ])
 
-    mu_nu_prop <- make_mu_nu(priors)
-    Q_nu_prop <- make_Q_nu(priors)
-    Q_e_prop <- make_Q_e(theta_prop)
+    params <- update_theta(params)
 
-    mu_x_prop <- make_mu_x(Z, mu_nu_prop)
-    Q_x_prop <- make_Q_x(Q_e_prop, Z, Q_nu_prop)
-    chol_Q_x_prop <- Cholesky(Q_x_prop)
+    theta_samp[i, ] <- params$theta
 
-    Q_x_cond_etahat_prop <- make_Q_x_cond_etahat(mu_x_prop, Q_x_prop, B)
-    mu_x_cond_etahat_prop <- make_mu_x_cond_etahat(mu_x_prop, Q_x_prop, Q_x_cond_etahat_prop, B)
-    chol_Q_x_cond_etahat_prop <- Cholesky(Q_x_cond_etahat_prop)
-
-
-    pi_new <- pi_theta_cond_etahat(
-      theta_prop,
-      eta,
-      x, mu_x_prop, chol_Q_x_prop,
-      mu_x_cond_etahat_prop, chol_Q_x_cond_etahat_prop
-    )
-
-    pi_old <- pi_theta_cond_etahat(
-      theta_samp[i - 1, ],
-      eta,
-      x, mu_x, chol_Q_x,
-      mu_x_cond_etahat, chol_Q_x_cond_etahat
-    )
-
-    if (exp(pi_new - pi_old) > runif(1)) {
-
-      theta_samp[i, ] <- theta_prop
-      mu_nu <- mu_nu_prop
-      Q_nu <- Q_nu_prop
-      Q_e <- Q_e_prop
-
-      mu_x <- mu_x_prop
-      Q_x <- Q_x_prop
-      chol_Q_x <- chol_Q_x_prop
-
-      Q_x_cond_etahat <- Q_x_cond_etahat_prop
-      mu_x_cond_etahat <- mu_x_cond_etahat_prop
-      chol_Q_x_cond_etahat <- chol_Q_x_cond_etahat_prop
-
-
-
-    } else {
-
-      theta_samp[i, ] <- theta_samp[i - 1, ]
-
-    }
-
-    x_samp[i, ] <- sample_pi_x_cond_etahat(mu_x_cond_etahat, chol_Q_x_cond_etahat)
-    x <- x_samp[i, ]
-    eta <- x[1:len_eta]
-    nu <- x[-(1:len_eta)]
+    x_samp[i, ] <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
+    params$x <- x_samp[i, ]
+    params$eta <- params$x[1:len_eta]
+    params$nu <- params$x[-(1:len_eta)]
 
   }
 
@@ -166,7 +96,8 @@ ms_smooth_sample <- function(
 
   list(
     "theta" = theta_samp,
-    "x" = x_samp
+    "x" = x_samp,
+    "chain" = chain
   )
 
 }

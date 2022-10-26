@@ -7,10 +7,10 @@
 #'
 #' @examples
 pi_theta <- function(theta) {
-  log_sqrt_prec_e <- theta[1:4]
+  log_prec_e <- theta[1:4]
   out <- 0
   for (i in 1:4) {
-    out <- out + dnorm(log_sqrt_prec_e[i], mean = 4, sd = 2, log = T)
+    out <- out + dnorm(log_prec_e[i], mean = 0, sd = 2, log = T)
   }
 
   out

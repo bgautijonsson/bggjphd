@@ -13,12 +13,12 @@ get_priors <- function() {
     ungroup() |>
     group_by(term) |>
     summarise(mean = mean(par),
-              sd = sd(par),
+              var = var(par),
               .groups = "drop")
 
   list(
     mu_nu = priors$mean,
-    log_sqrt_prec_nu = log(1/priors$sd)
+    log_prec_nu = -log(priors$var * 10)
   )
 
 

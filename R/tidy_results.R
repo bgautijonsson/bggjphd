@@ -11,16 +11,9 @@ tidy_results <- function(results) {
   results |>
     map(tidy_helper) |>
     bind_rows() |>
-    group_by(iter, name) |>
-    mutate(chain = row_number()) |>
-    ungroup() |>
-    select(chain, iter, name, value) |>
-    arrange(chain, name, iter) |>
-    group_by(name) |>
+    arrange(chain, iter) |>
     mutate(draw = row_number()) |>
-    ungroup() |>
-    rename(.iteration = iter, .chain = chain, .draw = draw, variable = name) |>
-    pivot_wider(names_from = variable, values_from = value) |>
+    rename(.iteration = iter, .chain = chain, .draw = draw) |>
     as_draws_df()
 
 }
@@ -78,9 +71,9 @@ tidy_helper <- function(datalist) {
 
   cbind(theta, x) |>
     as_tibble() |>
-    mutate(iter = row_number()) |>
-    select(iter, everything()) |>
-    pivot_longer(c(-iter))
+    mutate(iter = row_number(),
+           chain = datalist$chain) |>
+    select(iter, everything())
 
 }
 

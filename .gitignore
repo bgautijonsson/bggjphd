@@ -6,6 +6,5 @@
 inst/doc
 data
 *.rds
-docs
 /doc/
 /Meta/

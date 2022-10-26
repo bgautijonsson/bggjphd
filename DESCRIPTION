@@ -33,5 +33,7 @@ Imports:
     vroom
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    devtools,
+    usethis
 VignetteBuilder: knitr

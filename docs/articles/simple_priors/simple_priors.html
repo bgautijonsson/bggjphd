@@ -79,10 +79,92 @@
 
     
     
-<p>The results for this analysis were obtained by running
-<code><a href="../../reference/ms_smooth.html">ms_smooth()</a></code> in parrallel on four cores with four chains
-each run for 4000 samples. Half of those samples were designated as
-warm-up and so we have a total of 8000 samples from the posterior.</p>
+<div class="section level2">
+<h2 id="priors-and-setup">Priors and setup<a class="anchor" aria-label="anchor" href="#priors-and-setup"></a>
+</h2>
+<p>In this analysis the station-specific GEV parameters, <span class="math inline">\(\psi\)</span>, <span class="math inline">\(\tau\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\gamma\)</span> are given exchangeable
+hierarchical priors with no spatial information, i.e.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\psi_i &amp;\sim \mathrm{Normal}(\mu_\psi, \sigma_\psi^2) \\
+\tau_i &amp;\sim \mathrm{Normal}(\mu_\tau, \sigma_\tau^2) \\
+\phi_i &amp;\sim \mathrm{Normal}(\mu_\phi, \sigma_\phi^2) \\
+\gamma_i &amp;\sim \mathrm{Normal}(\mu_\gamma, \sigma_\gamma^2)
+\end{aligned}
+\]</span></p>
+<p>Where each <span class="math inline">\(\mu\)</span> parameter was
+given a normal prior according to the table below where the means are
+the means of the ML estimates and the standard deviations are calculated
+by taking the variance of all ML estimates and multiplying it by
+ten:</p>
+<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+sd
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+psi
+</td>
+<td style="text-align:right;">
+2.4647
+</td>
+<td style="text-align:right;">
+0.2512
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tau
+</td>
+<td style="text-align:right;">
+-0.9633
+</td>
+<td style="text-align:right;">
+0.3624
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+phi
+</td>
+<td style="text-align:right;">
+0.0476
+</td>
+<td style="text-align:right;">
+0.8362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gamma
+</td>
+<td style="text-align:right;">
+0.3228
+</td>
+<td style="text-align:right;">
+0.9899
+</td>
+</tr>
+</tbody>
+</table>
+<p>Each <span class="math inline">\(\sigma\)</span> parameter was given
+priors on the log precision scale according to a Normal(0, 2)
+distribution. When converted to a standard deviation scale the prior
+distribution can be seen in the figure below.</p>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-3-1.png" width="100%"></p>
+<p>The results were obtained by running <code><a href="../../reference/ms_smooth.html">ms_smooth()</a></code> in
+parrallel on four cores with four chains each run for 4000 samples. Half
+of those samples were designated as warm-up and so we have a total of
+8000 samples from the posterior.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_iter</span> <span class="op">&lt;-</span> <span class="fl">4000</span></span>
 <span><span class="fu">plan</span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
@@ -90,12 +172,16 @@ warm-up and so we have a total of 8000 samples from the posterior.</p>
 <span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ms_smooth.html">ms_smooth</a></span><span class="op">(</span>n_samp <span class="op">=</span> <span class="va">n_iter</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="fu">plan</span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
 </h2>
 <div class="section level3">
 <h3 id="hyperpriors">Hyperpriors<a class="anchor" aria-label="anchor" href="#hyperpriors"></a>
 </h3>
+<div class="section level4">
+<h4 id="log-precision-scale">Log precision scale<a class="anchor" aria-label="anchor" href="#log-precision-scale"></a>
+</h4>
 <table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
@@ -260,13 +346,84 @@ theta[4]
 </tr>
 </tbody>
 </table>
-<p><img src="simple_priors_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
-<p><img src="simple_priors_files/figure-html/unnamed-chunk-6-1.png" width="100%"></p>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-7-1.png" width="100%"></p>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
+</div>
+<div class="section level4">
+<h4 id="on-standard-deviation-scale">On standard deviation scale<a class="anchor" aria-label="anchor" href="#on-standard-deviation-scale"></a>
+</h4>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-9-1.png" width="100%"></p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="gev-parameters">GEV Parameters<a class="anchor" aria-label="anchor" href="#gev-parameters"></a>
 </h3>
-<p><img src="simple_priors_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
+<div class="section level4">
+<h4 id="comparing-ml-and-mcmc-estimates">Comparing ML and MCMC estimates<a class="anchor" aria-label="anchor" href="#comparing-ml-and-mcmc-estimates"></a>
+</h4>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-11-1.png" width="100%"></p>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-12-1.png" width="100%"></p>
+</div>
+<div class="section level4">
+<h4 id="spatial-distributions">Spatial Distributions<a class="anchor" aria-label="anchor" href="#spatial-distributions"></a>
+</h4>
+<div class="section level5">
+<h5 id="location">Location<a class="anchor" aria-label="anchor" href="#location"></a>
+</h5>
+<div class="section level6">
+<h6 id="psi">psi<a class="anchor" aria-label="anchor" href="#psi"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-14-1.png" width="100%"></p>
+</div>
+<div class="section level6">
+<h6 id="mu">mu<a class="anchor" aria-label="anchor" href="#mu"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-15-1.png" width="100%"></p>
+</div>
+</div>
+<div class="section level5">
+<h5 id="scale">Scale<a class="anchor" aria-label="anchor" href="#scale"></a>
+</h5>
+<div class="section level6">
+<h6 id="tau">tau<a class="anchor" aria-label="anchor" href="#tau"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
+</div>
+<div class="section level6">
+<h6 id="sigma">sigma<a class="anchor" aria-label="anchor" href="#sigma"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-17-1.png" width="100%"></p>
+</div>
+</div>
+<div class="section level5">
+<h5 id="shape">Shape<a class="anchor" aria-label="anchor" href="#shape"></a>
+</h5>
+<div class="section level6">
+<h6 id="phi">phi<a class="anchor" aria-label="anchor" href="#phi"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-18-1.png" width="100%"></p>
+</div>
+<div class="section level6">
+<h6 id="xi">xi<a class="anchor" aria-label="anchor" href="#xi"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
+</div>
+</div>
+<div class="section level5">
+<h5 id="trend">Trend<a class="anchor" aria-label="anchor" href="#trend"></a>
+</h5>
+<div class="section level6">
+<h6 id="gamma">gamma<a class="anchor" aria-label="anchor" href="#gamma"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
+</div>
+<div class="section level6">
+<h6 id="delta">Delta<a class="anchor" aria-label="anchor" href="#delta"></a>
+</h6>
+<p><img src="simple_priors_files/figure-html/unnamed-chunk-21-1.png" width="100%"></p>
+</div>
+</div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

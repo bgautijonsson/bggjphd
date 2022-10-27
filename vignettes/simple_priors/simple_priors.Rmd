@@ -30,7 +30,70 @@ theme_set(theme_half_open())
 ```
 
 
-The results for this analysis were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
+# Priors and setup
+
+In this analysis the station-specific GEV parameters, $\psi$, $\tau$, $\phi$ and $\gamma$ are given exchangeable hierarchical priors with no spatial information, i.e.
+
+$$
+\begin{aligned}
+\psi_i &\sim \mathrm{Normal}(\mu_\psi, \sigma_\psi^2) \\
+\tau_i &\sim \mathrm{Normal}(\mu_\tau, \sigma_\tau^2) \\
+\phi_i &\sim \mathrm{Normal}(\mu_\phi, \sigma_\phi^2) \\
+\gamma_i &\sim \mathrm{Normal}(\mu_\gamma, \sigma_\gamma^2) 
+\end{aligned}
+$$
+
+Where each $\mu$ parameter was given a normal prior according to the table below where the means are the means of the ML estimates and the standard deviations are calculated by taking the variance of all ML estimates and multiplying it by ten:
+
+```{r}
+station_estimates |>
+    unnest(par) |>
+    group_by(station) |>
+    mutate(term = row_number()) |>
+    ungroup() |>
+    group_by(term) |>
+    summarise(mean = mean(par),
+              var = var(par),
+              .groups = "drop") |> 
+  mutate(term = c("psi", "tau", "phi", "gamma"),
+         sd = sqrt(var * 10)) |> 
+  select(-var) |> 
+  kable(digits = 4) |> 
+  kable_styling(full_width = FALSE)
+```
+
+Each $\sigma$ parameter was given priors on the log precision scale according to a Normal(0, 2) distribution. When converted to a standard deviation scale the prior distribution can be seen in the figure below.
+
+```{r}
+log_prec <- rnorm(n = 10000, mean = 0, sd = 2)
+sd <- exp(-log_prec/2)
+
+tibble(
+  sd = sd
+) |> 
+  ggplot(aes(sd)) +
+  geom_histogram() +
+  scale_x_log10(
+    labels = label_number()
+  ) +
+  scale_y_continuous(
+    expand = expansion()
+  ) +
+  theme(
+    axis.line.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    plot.margin = margin(t = 5, r = 35, b = 5, l = 5)
+  ) +
+  labs(
+    x = "Prior draws of standard deviation",
+    y = NULL,
+    title = "Prior distribution for each parameter's standard deviation"
+  )
+```
+
+
+The results were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
 
 ```{r}
 #| eval: false
@@ -63,6 +126,8 @@ if (!file.exists("results.rds")) {
 
 ## Hyperpriors
 
+### Log precision scale
+
 ```{r}
 results |> 
   filter(.iteration > n_iter/2) |> 
@@ -90,7 +155,38 @@ results |>
   mutate(accept = 1 * (value != lag(value))) |> 
   ungroup() |> 
   ggplot(aes(.iteration, accept, group = .chain)) +
-  geom_smooth(method = "loess", span = 0.3, se = 0)
+  geom_smooth(method = "loess", span = 0.3, se = 0) +
+  scale_x_continuous(
+    expand = expansion()
+  ) +
+  scale_y_continuous(
+    breaks = pretty_breaks(5),
+    labels = label_percent(),
+    expand = expansion()
+  ) +
+  theme(
+    plot.margin = margin(t = 5, r = 35, b = 5, l = 5)
+  ) +  
+  coord_cartesian(ylim = c(0, 0.5)) +
+  labs(
+    x = "Iteration",
+    y = "Acceptance probability",
+    title = "Acceptance probability for theta[1]"
+  )
+```
+
+### On standard deviation scale
+
+```{r}
+#| fig.asp: 0.8
+results |> 
+  filter(.iteration > n_iter/2) |> 
+  subset_draws(
+    "theta", 
+  ) |> 
+  mcmc_hist_by_chain(
+    transformations = function(x) exp(-x/2)
+  )
 ```
 
 
@@ -126,11 +222,51 @@ if (!file.exists("station_mcmc_ml.rds")) {
     write_rds(file = "station_mcmc_ml.rds")
 }
 
-plot_dat <- read_rds("station_mcmc_ml.rds")
+plot_dat <- read_rds("station_mcmc_ml.rds") |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "psi", "tau", "phi", "gamma"
+    )
+  )
+```
+
+### Comparing ML and MCMC estimates
+
+
+```{r}
+#| fig.asp: 1
+plot_dat |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "psi", "tau", "phi", "gamma"
+    ),
+    name = fct_recode(
+      factor(name),
+      "Maximum Likelihood" = "ml_estimate",
+      "Posterior Mean" = "mcmc_mean"
+    )
+  ) |> 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(variable, name), ncol = 2, scales = "free_x") +
+  theme(
+    axis.line.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Distributions of station parameters from ML and MCMC"
+  )
 ```
 
 
 ```{r}
+#| fig.asp: 0.8
 plot_dat |> 
   ggplot(aes(ml_estimate, mcmc_mean)) +
   geom_abline(intercept = 0, slope = 1, lty = 2) +
@@ -143,3 +279,121 @@ plot_dat |>
   )
 ```
 
+### Spatial Distributions
+
+```{r}
+proj_plot <- function(data) {
+  
+  title <- str_c(
+    "Spatial distribution of estimates for ", unique(data$variable)
+  )
+  
+  plot_dat <- data |> 
+    pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+    mutate(
+      name = fct_recode(
+        factor(name),
+        "Maximum Likelihood" = "ml_estimate",
+        "Posterior Mean" = "mcmc_mean"
+      )
+    )
+  
+  
+  plot_dat |> 
+    ggplot(aes(proj_x, proj_y)) +
+    geom_raster(aes(fill = value)) +
+    scale_fill_viridis_c() +
+    facet_wrap("name", nrow = 1) +
+    coord_cartesian(expand = FALSE) +
+    labs(
+      title = title,
+      fill = NULL,
+      x = "X projection",
+      y = "Y projection"
+    )
+}
+```
+
+#### Location
+
+##### psi
+
+```{r}
+plot_dat |> 
+  filter(variable == "psi") |> 
+  proj_plot()
+```
+
+##### mu
+
+```{r}
+plot_dat |> 
+  filter(variable == "psi") |> 
+  mutate(variable = "mu") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), exp) |> 
+  proj_plot()
+```
+
+#### Scale
+
+##### tau
+
+```{r}
+plot_dat |> 
+  filter(variable == "tau") |> 
+  proj_plot()
+```
+
+##### sigma
+
+```{r}
+plot_dat |> 
+  filter(variable %in% c("tau", "psi")) |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  mutate(sigma = exp(tau + psi)) |> 
+  select(-psi, -tau) |> 
+  pivot_longer(c(sigma), names_to = "variable", values_to = "value") |> 
+  pivot_wider() |> 
+  proj_plot()
+```
+
+#### Shape
+
+##### phi
+
+```{r}
+plot_dat |> 
+  filter(variable == "phi") |> 
+  proj_plot()
+```
+
+##### xi
+
+```{r}
+plot_dat |> 
+  filter(variable == "phi") |> 
+  mutate(variable = "xi") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), link_shape_inverse) |> 
+  proj_plot()
+```
+
+#### Trend
+
+##### gamma
+
+```{r}
+plot_dat |> 
+  filter(variable == "gamma") |> 
+  proj_plot()
+```
+
+##### Delta
+
+```{r}
+plot_dat |> 
+  filter(variable == "gamma") |> 
+  mutate(variable = "delta") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), link_trend_inverse) |> 
+  proj_plot()
+```

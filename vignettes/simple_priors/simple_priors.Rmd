@@ -48,15 +48,11 @@ Where each $\mu$ parameter was given a normal prior according to the table below
 ```{r}
 station_estimates |>
     unnest(par) |>
-    group_by(station) |>
-    mutate(term = row_number()) |>
-    ungroup() |>
-    group_by(term) |>
-    summarise(mean = mean(par),
-              var = var(par),
+    group_by(name) |>
+    summarise(mean = mean(value),
+              var = var(value),
               .groups = "drop") |> 
-  mutate(term = c("psi", "tau", "phi", "gamma"),
-         sd = sqrt(var * 10)) |> 
+  mutate(sd = sqrt(var * 10)) |> 
   select(-var) |> 
   kable(digits = 4) |> 
   kable_styling(full_width = FALSE)
@@ -125,6 +121,8 @@ if (!file.exists("results.rds")) {
 # Parameters
 
 ## Hyperpriors
+
+
 
 ### Log precision scale
 
@@ -214,8 +212,7 @@ if (!file.exists("station_mcmc_ml.rds")) {
       station_estimates |> 
         select(station, par) |> 
         unnest(par) |> 
-        rename(ml_estimate = par) |> 
-        mutate(variable = c("psi", "tau", "phi", "gamma")),
+        rename(ml_estimate = value, variable = name),
       by = c("station", "variable")
     ) |> 
     select(station, proj_x, proj_y, latitude, longitude, variable, ml_estimate, mcmc_mean) |> 

@@ -94,8 +94,7 @@ if (!file.exists("station_mcmc_ml.rds")) {
       station_estimates |> 
         select(station, par) |> 
         unnest(par) |> 
-        rename(ml_estimate = par) |> 
-        mutate(variable = c("psi", "tau", "phi", "gamma")),
+        rename(ml_estimate = value, variable = name),
       by = c("station", "variable")
     ) |> 
     select(station, proj_x, proj_y, latitude, longitude, variable, ml_estimate, mcmc_mean) |> 

@@ -14,11 +14,14 @@ URL: https://github.com/bgautijonsson/bggjphd,
 BugReports: https://github.com/bgautijonsson/bggjphd/issues
 Depends: 
     dplyr,
+    forcats,
     Matrix,
     posterior,
     purrr,
     R (>= 2.10),
+    readr,
     sparseMVN,
+    stringr,
     tibble,
     tidyr
 LazyData: true
@@ -26,10 +29,12 @@ Imports:
     bayesplot,
     cowplot,
     evd,
+    foreach,
     furrr,
     future,
     here,
     kableExtra,
+    parallel,
     progressr,
     scales,
     vroom

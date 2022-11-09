@@ -41,7 +41,6 @@ pi_theta_cond_etahat <- function(
     mu_x_cond_etahat, chol_Q_x_cond_etahat
 ) {
   pi_theta(theta) +
-    pi_etahat_cond_x_theta(eta) +
     pi_x_cond_theta(x, mu_x, chol_Q_x) -
     pi_x_cond_theta_etahat(x, mu_x_cond_etahat, chol_Q_x_cond_etahat)
 }

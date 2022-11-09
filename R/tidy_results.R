@@ -50,7 +50,7 @@ tidy_helper <- function(datalist) {
           "phi",
           "gamma"
         ),
-        times = nrow(stations)
+        each = nrow(stations)
       ),
       rep(
         str_c(
@@ -58,7 +58,7 @@ tidy_helper <- function(datalist) {
           seq_len(nrow(stations)),
           "]"
         ),
-        each = 4
+        times = 4
       )
     ),
     c(

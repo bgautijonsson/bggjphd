@@ -146,8 +146,24 @@ fit_gev_trend <- function(data, priors = "default", ...) {
     t = data$year, hessian = T
   )
 
-  par <- m$par
-  hess <- m$hessian
+  param_names <- c("psi", "tau", "phi", "gamma")
+
+  par <- tibble(
+    name = param_names |> forcats::as_factor() |> forcats::fct_relevel("psi", "tau", "phi", "gamma"),
+    value = m$par
+  )
+
+  hess <- m$hessian |>
+    as.data.frame() |>
+    as_tibble() |>
+    set_names(
+      param_names
+    ) |>
+    mutate(
+      name1 = param_names
+    ) |>
+    pivot_longer(c(-name1), names_to = "name2", values_to = "value") |>
+    mutate_at(vars(name1, name2), function(x) x |> forcats::as_factor() |> forcats::fct_relevel("psi", "tau", "phi", "gamma"))
 
   # par <-tibble(
   #   parameter = c("psi", "gamma", "tau", "phi"),
@@ -171,5 +187,6 @@ fit_gev_trend <- function(data, priors = "default", ...) {
 ms_max <- function(priors = "default") {
   precip |>
     group_by(station) |>
-    group_modify(fit_gev_trend, priors = priors)
+    group_modify(fit_gev_trend, priors = priors) |>
+    ungroup()
 }

@@ -19,11 +19,40 @@ make_Z <- function(fmla = NULL) {
     data = stations |>
       crossing(
         param = c("psi", "tau", "phi", "gamma")
-      )
+      ) |>
+      arrange(param, station)
   )
 
 
   out
+
+  # X <- sparse.model.matrix(
+  #   station ~ param - 1,
+  #   stations |>
+  #     crossing(
+  #       param = c("psi", "tau", "phi", "gamma")
+  #     ) |>
+  #     mutate(stat = str_pad(station, side = "l", width = 3, pad = "0"),
+  #            stat = str_c(param, stat)) |>
+  #     arrange(param, station),
+  # )
+  #
+  #
+  # A <- sparse.model.matrix(
+  #   station ~ stat - 1,
+  #   stations |>
+  #     crossing(
+  #       param = c("psi", "tau", "phi", "gamma")
+  #     ) |>
+  #     mutate(stat = str_pad(station, side = "l", width = 3, pad = "0"),
+  #            stat = str_c(param, stat)) |>
+  #     arrange(param, station),
+  # )
+  #
+  #
+  # Z <- cbind(X, A)
+  #
+  # Z
 }
 
 #' Title
@@ -43,7 +72,7 @@ init_eta <- function(Z, nu, theta) {
 
   log_prec <- theta
   sd <- sqrt(exp(-log_prec))
-  sd <- rep(sd, times = n_stations)
+  sd <- rep(sd, each = n_stations)
 
   out <- rnorm(
     n = n_param,
@@ -128,7 +157,7 @@ make_x <- function(nu, eta) {
 #' @examples
 make_mu_nu <- function(priors) {
   Matrix(
-    priors$mu_nu,
+      priors$mu_nu,
     ncol = 1
   )
 }
@@ -146,6 +175,21 @@ make_Q_nu <- function(priors) {
     n = 4,
     x = exp(priors$log_prec)
   )
+#
+#   Q_beta <- .sparseDiagonal(
+#     n = 4,
+#     x = exp(priors$log_prec)
+#   )
+#
+#   bdiag(
+#     list(
+#       Q_beta,
+#       Q_u,
+#       Q_u,
+#       Q_u,
+#       Q_u
+#     )
+#   )
 }
 
 #' Title
@@ -161,7 +205,7 @@ make_Q_e <- function(theta) {
 
   log_prec<- theta
   prec <- exp(log_prec)
-  prec <- rep(prec, times = n_stations)
+  prec <- rep(prec, each = n_stations)
 
   .sparseDiagonal(
     x = prec

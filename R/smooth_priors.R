@@ -8,12 +8,9 @@ get_priors <- function() {
 
   priors <- station_estimates |>
     unnest(par) |>
-    group_by(station) |>
-    mutate(term = row_number()) |>
-    ungroup() |>
-    group_by(term) |>
-    summarise(mean = mean(par),
-              var = var(par),
+    group_by(name) |>
+    summarise(mean = mean(value),
+              var = var(value),
               .groups = "drop")
 
   list(

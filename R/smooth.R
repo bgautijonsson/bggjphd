@@ -79,8 +79,6 @@ ms_smooth_sample <- function(
     i <- i + 1
     p()
 
-
-
     params <- update_theta(params)
 
     theta_samp[i, ] <- params$theta

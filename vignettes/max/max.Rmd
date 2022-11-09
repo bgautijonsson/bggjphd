@@ -47,10 +47,7 @@ These transformations make it so that $\xi$ can take values between $-0.8$ and $
 d <- station_estimates |> 
   ungroup() |> 
   select(station, par) |> 
-  unnest(par) |> 
-  mutate(name = rep(c("psi", "tau", "phi", "gamma"), max(station)) |> 
-           factor(levels = c("psi", "tau", "phi", "gamma"))) |> 
-  rename(value = par)
+  unnest(par)
 
 
 d |> 

@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">bggjphd</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,9 @@
     <a class="dropdown-item" href="articles/simple_priors/simple_priors.html">The Smooth Step: Simple exchangeable hierarchical priors</a>
     <a class="dropdown-item" href="articles/spatial_priors/spatial_priors.html">The Smooth Step: Simple spatial priors</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -67,12 +70,27 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bggjphd">bggjphd<a class="anchor" aria-label="anchor" href="#bggjphd"></a>
+<div class="page-header"><h1 id="about-this-page">About this page<a class="anchor" aria-label="anchor" href="#about-this-page"></a>
 </h1></div>
-<!-- badges: start -->
-<!-- badges: end -->
 <p>I’m developing and maintaining this package to go along with my PhD studies for reproducibility and to held me keep my sanity intact for the next years.</p>
+<p>The main gist of my PhD research will be adding to the <code>Max-and-Smooth</code> method previously developed and published by my advisor, Birgir Hrafnkelsson, and others <a href="https://arxiv.org/abs/1907.11969" target="_blank" class="external-link">here</a></p>
 </div>
+<div class="section level1">
+<h1 id="articles">Articles<a class="anchor" aria-label="anchor" href="#articles"></a>
+</h1>
+<p>The <code>Articles</code> section contains analysis I have written during different steps of my PhD. Currently the articles are</p>
+<ul>
+<li>
+<strong>Data:</strong> About the data that I use for this project. Where to find it, how to download and process it, etc.</li>
+<li>
+<strong>The Max Step:</strong> This talks about the first step of the <code>Max-and-Smooth</code> algorithm in which we perform sitewise maximum likelihood estimation of the GEV with trend parameters.</li>
+<li>
+<strong>The Smooth Step: Simple exchangeable hierarchical priors:</strong> Here I show results when running the <code>Max-and-Smooth</code> algorithm for a very simple hierarchical model where each station’s four parameters are sampled from one of four normal distributions.</li>
+<li>
+<strong>The Smooth Step: Simple spatial priors:</strong> Here I show results when a simple spatial prior is assumed.</li>
+</ul>
+</div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

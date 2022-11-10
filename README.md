@@ -1,11 +1,30 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# bggjphd
-
-<!-- badges: start -->
-<!-- badges: end -->
+# About this page
 
 I’m developing and maintaining this package to go along with my PhD
 studies for reproducibility and to held me keep my sanity intact for the
 next years.
+
+The main gist of my PhD research will be adding to the `Max-and-Smooth`
+method previously developed and published by my advisor, Birgir
+Hrafnkelsson, and others
+<a href="https://arxiv.org/abs/1907.11969" target="_blank">here</a>
+
+# Articles
+
+The `Articles` section contains analysis I have written during different
+steps of my PhD. Currently the articles are
+
+- **Data:** About the data that I use for this project. Where to find
+  it, how to download and process it, etc.
+- **The Max Step:** This talks about the first step of the
+  `Max-and-Smooth` algorithm in which we perform sitewise maximum
+  likelihood estimation of the GEV with trend parameters.
+- **The Smooth Step: Simple exchangeable hierarchical priors:** Here I
+  show results when running the `Max-and-Smooth` algorithm for a very
+  simple hierarchical model where each station’s four parameters are
+  sampled from one of four normal distributions.
+- **The Smooth Step: Simple spatial priors:** Here I show results when a
+  simple spatial prior is assumed.

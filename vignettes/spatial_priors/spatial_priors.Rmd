@@ -32,7 +32,7 @@ theme_set(theme_half_open())
 
 The results were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
 
-```{r}
+```{r, eval=FALSE}
 #| eval: false
 #| echo: true
 n_iter <- 4000

@@ -29,6 +29,30 @@ library(kableExtra)
 theme_set(theme_half_open())
 ```
 
+The latent parameters, $\psi$, $\tau$, $\phi$, and $\gamma$, are given intrinsic random walk spatial priors, for example
+
+$$
+\psi \sim \mathcal N(\mathbf 0, \tau_\psi \cdot Q_u).
+$$
+
+Here, $Q_u$ is defined by
+
+$$
+Q_u = R \otimes I + I \otimes R,
+$$
+
+where $I$ is the identity matrix and
+
+$$
+R = \begin{bmatrix}
+1 & -1 & & & & & \\
+-1 & 2 & -1 & & & & \\
+& -1 & 2 & -1 & & & \\
+& & \ddots & \ddots & \ddots & & \\
+& & &-1 &2 &-1 & \\
+& & & & -1 & 1\\
+\end{bmatrix}.
+$$
 
 The results were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
 

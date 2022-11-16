@@ -7,20 +7,19 @@
 #'
 #' @examples
 make_Q_u <- function(dim) {
-  n <- dim
 
   R <- bandSparse(
-    n = n,
-    m = n,
+    n = dim,
+    m = dim,
     k = -1:1,
     diagonals = list(
-      rep(-1, n),
-      c(1, rep(2, n - 2), 1),
-      rep(-1, n)
+      rep(-1, dim),
+      c(1, rep(2, dim - 2), 1),
+      rep(-1, dim)
     )
   )
 
-  I <- Diagonal(n, x = 1)
+  I <- Diagonal(dim, x = 1)
 
 
   kronecker(R, I) + kronecker(I, R)

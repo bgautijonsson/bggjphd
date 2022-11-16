@@ -83,6 +83,28 @@
 
     
     
+<p>The latent parameters, <span class="math inline">\(\psi\)</span>,
+<span class="math inline">\(\tau\)</span>, <span class="math inline">\(\phi\)</span>, and <span class="math inline">\(\gamma\)</span>, are given intrinsic random walk
+spatial priors, for example</p>
+<p><span class="math display">\[
+\psi \sim \mathcal N(\mathbf 0, \tau_\psi \cdot Q_u).
+\]</span></p>
+<p>Here, <span class="math inline">\(Q_u\)</span> is defined by</p>
+<p><span class="math display">\[
+Q_u = R \otimes I + I \otimes R,
+\]</span></p>
+<p>where <span class="math inline">\(I\)</span> is the identity matrix
+and</p>
+<p><span class="math display">\[
+R = \begin{bmatrix}
+1 &amp; -1 &amp; &amp; &amp; &amp; &amp; \\
+-1 &amp; 2 &amp; -1 &amp; &amp; &amp; &amp; \\
+&amp; -1 &amp; 2 &amp; -1 &amp; &amp; &amp; \\
+&amp; &amp; \ddots &amp; \ddots &amp; \ddots &amp; &amp; \\
+&amp; &amp; &amp;-1 &amp;2 &amp;-1 &amp; \\
+&amp; &amp; &amp; &amp; -1 &amp; 1\\
+\end{bmatrix}.
+\]</span></p>
 <p>The results were obtained by running <code><a href="../../reference/ms_smooth.html">ms_smooth()</a></code> in
 parrallel on four cores with four chains each run for 4000 samples. Half
 of those samples were designated as warm-up and so we have a total of
@@ -142,31 +164,31 @@ ess_tail
 theta[1]
 </td>
 <td style="text-align:right;">
-7.257
+7.259
 </td>
 <td style="text-align:right;">
-7.247
+7.256
 </td>
 <td style="text-align:right;">
-0.190
+0.173
 </td>
 <td style="text-align:right;">
-0.192
+0.175
 </td>
 <td style="text-align:right;">
-6.958
+6.989
 </td>
 <td style="text-align:right;">
-7.579
+7.550
 </td>
 <td style="text-align:right;">
-1.005
+1.008
 </td>
 <td style="text-align:right;">
-331.668
+527.743
 </td>
 <td style="text-align:right;">
-545.839
+996.603
 </td>
 </tr>
 <tr>
@@ -174,31 +196,31 @@ theta[1]
 theta[2]
 </td>
 <td style="text-align:right;">
-5.651
+5.650
 </td>
 <td style="text-align:right;">
-5.650
+5.652
 </td>
 <td style="text-align:right;">
 0.177
 </td>
 <td style="text-align:right;">
-0.178
+0.176
 </td>
 <td style="text-align:right;">
-5.362
+5.361
 </td>
 <td style="text-align:right;">
-5.948
+5.954
 </td>
 <td style="text-align:right;">
 1.009
 </td>
 <td style="text-align:right;">
-438.977
+501.082
 </td>
 <td style="text-align:right;">
-892.248
+756.460
 </td>
 </tr>
 <tr>
@@ -206,31 +228,31 @@ theta[2]
 theta[3]
 </td>
 <td style="text-align:right;">
-3.912
+3.909
 </td>
 <td style="text-align:right;">
-3.906
+3.908
 </td>
 <td style="text-align:right;">
 0.151
 </td>
 <td style="text-align:right;">
-0.149
+0.150
 </td>
 <td style="text-align:right;">
-3.669
+3.668
 </td>
 <td style="text-align:right;">
-4.166
+4.155
 </td>
 <td style="text-align:right;">
-1.004
+1.015
 </td>
 <td style="text-align:right;">
-637.705
+654.550
 </td>
 <td style="text-align:right;">
-861.451
+998.264
 </td>
 </tr>
 <tr>
@@ -238,31 +260,31 @@ theta[3]
 theta[4]
 </td>
 <td style="text-align:right;">
-4.819
+4.806
 </td>
 <td style="text-align:right;">
-4.820
+4.798
 </td>
 <td style="text-align:right;">
-0.179
+0.175
 </td>
 <td style="text-align:right;">
 0.176
 </td>
 <td style="text-align:right;">
-4.529
+4.525
 </td>
 <td style="text-align:right;">
-5.123
+5.100
 </td>
 <td style="text-align:right;">
-1.004
+1.009
 </td>
 <td style="text-align:right;">
-418.354
+434.076
 </td>
 <td style="text-align:right;">
-693.736
+634.082
 </td>
 </tr>
 </tbody>

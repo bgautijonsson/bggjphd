@@ -4,7 +4,13 @@
 \alias{ms_smooth}
 \title{Perform the second step, smooth, to sample from the posterior}
 \usage{
-ms_smooth(fmla = station ~ param - 1, theta = NULL, n_samp = 500, n_chain = 4)
+ms_smooth(
+  fmla = station ~ param - 1,
+  type = "spatial",
+  theta = NULL,
+  n_samp = 500,
+  n_chain = 4
+)
 }
 \arguments{
 \item{fmla}{}

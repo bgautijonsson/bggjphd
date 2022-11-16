@@ -2,13 +2,13 @@
 % Please edit documentation in R/smooth_params.R
 \name{update_theta}
 \alias{update_theta}
-\title{A function to perform a metropolis hastings step on the proposed theta vector}
+\title{Title}
 \usage{
-update_theta(params)
+update_theta(params, type = "spatial")
 }
 \arguments{
-\item{theta_prop}{}
+\item{type}{}
 }
 \description{
-A function to perform a metropolis hastings step on the proposed theta vector
+Title
 }

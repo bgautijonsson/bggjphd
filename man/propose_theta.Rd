@@ -4,7 +4,7 @@
 \alias{propose_theta}
 \title{Title}
 \usage{
-propose_theta(theta)
+propose_theta(params)
 }
 \arguments{
 \item{theta}{}

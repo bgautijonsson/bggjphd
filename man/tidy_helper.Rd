@@ -4,7 +4,7 @@
 \alias{tidy_helper}
 \title{Function to be applied to each chain's results and reduced into one data frame}
 \usage{
-tidy_helper(datalist)
+tidy_helper(datalist, type = "spatial")
 }
 \arguments{
 \item{datalist}{}

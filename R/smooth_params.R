@@ -1,9 +1,46 @@
 #' Title
 #'
+#' @param n_samp
+#' @param type
+#'
+#' @return
+#' @export
+#'
+#' @examples
+init_params <- function(n_samp = 500, type = "spatial") {
+  if (type == "basic") {
+    params <- init_params_basic(n_samp = n_samp)
+  } else {
+    params <- init_params_spatial(n_samp = n_samp)
+  }
+}
+
+#' Title
+#'
+#' @param params
+#' @param type
+#'
+#' @return
+#' @export
+#'
+#' @examples
+update_theta <- function(params, type = "spatial") {
+  if (type == "basic") {
+    params <- update_theta_basic(params)
+  } else if (type == "spatial") {
+    params <- update_theta_spatial(params)
+  }
+
+  params
+}
+
+
+#' Title
+#'
 #' @return
 #'
 #' @examples
-init_params <- function() {
+init_params_basic <- function(n_samp = n_samp) {
 
   theta <- init_theta()
   priors <- get_priors()
@@ -60,7 +97,11 @@ init_params <- function() {
     "mu_x_cond_etahat" = mu_x_cond_etahat,
     "chol_Q_x_cond_etahat" = chol_Q_x_cond_etahat,
     "theta" = theta,
-    "priors" = priors
+    "priors" = priors,
+    "accept" = 0.44,
+    "iter" = 1,
+    "n_samp" = n_samp,
+    "mult" = 2.3
   )
 }
 
@@ -72,9 +113,11 @@ init_params <- function() {
 #' @return
 #'
 #' @examples
-update_theta <- function(params) {
+update_theta_basic <- function(params) {
+  params$iter <- params$iter + 1
 
-  theta_prop <- propose_theta(params$theta)
+  params <- propose_theta(params)
+  theta_prop <- params$theta_prop
 
   Q_e_prop <- make_Q_e(theta_prop)
   Q_x_prop <- make_Q_x(Q_e_prop, params$Z, params$Q_nu)
@@ -100,6 +143,8 @@ update_theta <- function(params) {
     params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat
   )
 
+  accepted <- 0
+
   if (pi_new - pi_old > log(runif(1))) {
     params$Q_e <- Q_e_prop
     params$Q_x <- Q_x_prop
@@ -111,7 +156,123 @@ update_theta <- function(params) {
 
     params$theta <- theta_prop
 
+    accepted <- accepted + 1
+
   }
+
+  params$x <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
+  params$eta <- params$x[seq_len(params$eta)]
+  params$nu <- params$x[-seq_len(params$eta)]
+
+  params$accept <- (99*params$accept + accepted)/100
+
+  params
+
+}
+
+
+#' Title
+#'
+#' @return
+#'
+#' @examples
+init_params_spatial <- function(n_samp = n_samp) {
+
+  theta <- init_theta()
+
+
+  len_eta <- nrow(stations) * 4
+
+  x <- init_eta_spatial(theta)
+  Q_e <- make_Q_e_spatial(theta)
+  chol_Q_e <- Cholesky(Q_e)
+
+  eta_zero <- Matrix(
+    0,
+    ncol = 1,
+    nrow = nrow(x)
+  )
+
+
+  Q_eta_cond_etahat <- make_Q_eta_cond_etahat_spatial(Q_e)
+  mu_eta_cond_etahat <- make_mu_eta_cond_etahat_spatial(Q_eta_cond_etahat)
+  chol_Q_eta_cond_etahat <- Cholesky(Q_eta_cond_etahat)
+
+
+  list(
+    "x" = x,
+    "Q_e" = Q_e,
+    "chol_Q_e" = chol_Q_e,
+    "eta_zero" = eta_zero,
+    "Q_eta_cond_etahat" = Q_eta_cond_etahat,
+    "mu_eta_cond_etahat" = mu_eta_cond_etahat,
+    "chol_Q_eta_cond_etahat" = chol_Q_eta_cond_etahat,
+    "theta" = theta,
+    "accept" = 0.44,
+    "iter" = 1,
+    "n_samp" = n_samp,
+    "mult" = 2.3
+  )
+}
+
+#' A function to perform a metropolis hastings step on the proposed theta vector
+#'
+#' @param params
+#' @param theta_prop
+#'
+#' @return
+#'
+#' @examples
+update_theta_spatial <- function(params) {
+
+  params$iter <- params$iter + 1
+
+  params <- propose_theta(params)
+  theta_prop <- params$theta_prop
+
+  Q_e_prop <- make_Q_e_spatial(theta_prop)
+  chol_Q_e_prop <- Cholesky(Q_e_prop)
+
+  Q_eta_cond_etahat_prop <- make_Q_eta_cond_etahat_spatial(Q_e_prop)
+  mu_eta_cond_etahat_prop <- make_mu_eta_cond_etahat_spatial(Q_eta_cond_etahat_prop)
+  chol_Q_eta_cond_etahat_prop <- Cholesky(Q_eta_cond_etahat_prop)
+
+  # eta_prop <- sample_pi_eta_cond_etahat(chol_Q_eta_cond_etahat_prop, mu_eta_cond_etahat_prop)
+
+  pi_new <- pi_theta_cond_etahat_spatial(
+    theta_prop,
+    params$eta_zero,
+    chol_Q_e_prop,
+    chol_Q_eta_cond_etahat_prop, mu_eta_cond_etahat_prop
+  )
+
+  pi_old <- pi_theta_cond_etahat_spatial(
+    params$theta,
+    params$eta_zero,
+    params$chol_Q_e,
+    params$chol_Q_eta_cond_etahat, params$mu_eta_cond_etahat
+  )
+
+  accepted <- 0
+
+  if (pi_new - pi_old > log(runif(1))) {
+    params$Q_e <- Q_e_prop
+    params$chol_Q_e <- chol_Q_e_prop
+
+    params$Q_eta_cond_etahat <- Q_eta_cond_etahat_prop
+    params$mu_eta_cond_etahat <- mu_eta_cond_etahat_prop
+    params$chol_Q_eta_cond_etahat <- chol_Q_eta_cond_etahat_prop
+
+    params$theta <- theta_prop
+
+    accepted <- accepted + 1
+
+  }
+
+  params$x <- sample_pi_eta_cond_etahat_spatial(params$chol_Q_eta_cond_etahat, params$mu_eta_cond_etahat)
+
+
+  params$accept <- (99*params$accept + accepted)/100
 
   params
 

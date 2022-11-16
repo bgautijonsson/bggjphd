@@ -1,5 +1,13 @@
-make_R <- function(dim) {
-  n <- 5
+#' Title
+#'
+#' @param dim
+#'
+#' @return
+#' @export
+#'
+#' @examples
+make_Q_u <- function(dim) {
+  n <- dim
 
   R <- bandSparse(
     n = n,
@@ -7,7 +15,7 @@ make_R <- function(dim) {
     k = -1:1,
     diagonals = list(
       rep(-1, n),
-      rep(2, n),
+      c(1, rep(2, n - 2), 1),
       rep(-1, n)
     )
   )
@@ -17,5 +25,6 @@ make_R <- function(dim) {
 
   kronecker(R, I) + kronecker(I, R)
 }
+
 
 

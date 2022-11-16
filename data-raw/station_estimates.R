@@ -18,7 +18,7 @@ Q_etay <- station_estimates |>
   select(-par) |>
   unnest(hess) |>
   mutate(
-    station = str_pad(station, width = 3, side = "l", pad = "0"),
+    station = str_pad(station, width = 4, side = "l", pad = "0"),
     fullname1 = str_c(name1, station),
     fullname2 = str_c(name2, station)
   ) |>

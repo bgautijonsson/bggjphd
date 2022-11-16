@@ -4,7 +4,7 @@
 \alias{tidy_results}
 \title{Take the raw results from the MCMC sampler and convert it to a tidy draws_df object}
 \usage{
-tidy_results(results)
+tidy_results(results, type = "spatial")
 }
 \arguments{
 \item{results}{}

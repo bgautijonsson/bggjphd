@@ -4,7 +4,10 @@
 \alias{init_params}
 \title{Title}
 \usage{
-init_params()
+init_params(n_samp = 500, type = "spatial")
+}
+\arguments{
+\item{type}{}
 }
 \description{
 Title

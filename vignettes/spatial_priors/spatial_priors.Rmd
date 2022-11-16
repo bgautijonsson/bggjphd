@@ -38,7 +38,7 @@ The results were obtained by running `ms_smooth()` in parrallel on four cores wi
 n_iter <- 4000
 plan(multisession, workers = 4)
 with_progress({
-  results <- ms_smooth(n_samp = n_iter)
+  results <- ms_smooth(n_samp = n_iter, type = "spatial")
 })
 plan(sequential)
 ```
@@ -84,6 +84,14 @@ results |>
   subset_draws("theta") |> 
   mcmc_trace()
 ```
+
+```{r}
+results |> 
+  filter(.iteration > n_iter/2) |> 
+  subset_draws("theta") |> 
+  mcmc_acf_bar()
+```
+
 
 ```{r}
 results |> 

@@ -6,10 +6,10 @@
 #' @export
 #'
 #' @examples
-tidy_results <- function(results) {
+tidy_results <- function(results, type = "spatial") {
 
   results |>
-    map(tidy_helper) |>
+    map(tidy_helper, type = type) |>
     bind_rows() |>
     arrange(chain, iter) |>
     mutate(draw = row_number()) |>
@@ -27,7 +27,7 @@ tidy_results <- function(results) {
 #' @export
 #'
 #' @examples
-tidy_helper <- function(datalist) {
+tidy_helper <- function(datalist, type = "spatial") {
 
   theta <- datalist$theta |>
     as.data.frame()
@@ -41,33 +41,60 @@ tidy_helper <- function(datalist) {
   x <- datalist$x |>
     as.data.frame()
 
-  names(x) <- c(
-    str_c(
-      rep(
-        c(
-          "psi",
-          "tau",
-          "phi",
-          "gamma"
+  if (type == "spatial") {
+
+    names(x) <- c(
+      str_c(
+        rep(
+          c(
+            "psi",
+            "tau",
+            "phi",
+            "gamma"
+          ),
+          each = nrow(stations)
         ),
-        each = nrow(stations)
-      ),
-      rep(
-        str_c(
-          "[",
-          seq_len(nrow(stations)),
-          "]"
-        ),
-        times = 4
+        rep(
+          str_c(
+            "[",
+            seq_len(nrow(stations)),
+            "]"
+          ),
+          times = 4
+        )
       )
-    ),
-    c(
-      "mu_psi",
-      "mu_tau",
-      "mu_phi",
-      "mu_gamma"
     )
-  )
+
+
+  } else if (type == "basic") {
+    names(x) <- c(
+      str_c(
+        rep(
+          c(
+            "psi",
+            "tau",
+            "phi",
+            "gamma"
+          ),
+          each = nrow(stations)
+        ),
+        rep(
+          str_c(
+            "[",
+            seq_len(nrow(stations)),
+            "]"
+          ),
+          times = 4
+        )
+      ),
+      c(
+        "mu_psi",
+        "mu_tau",
+        "mu_phi",
+        "mu_gamma"
+      )
+    )
+  }
 
   cbind(theta, x) |>
     as_tibble() |>

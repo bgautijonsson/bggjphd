@@ -7,7 +7,7 @@
 #' @return Results from the Bayesian samples
 #' @export
 #'
-ms_smooth <- function(fmla = station ~ param - 1, theta = NULL, n_samp = 500, n_chain = 4) {
+ms_smooth <- function(fmla = station ~ param - 1, type = "spatial", theta = NULL, n_samp = 500, n_chain = 4) {
 
   p <- progressr::progressor(steps = n_chain * n_samp + 1)
 
@@ -18,6 +18,7 @@ ms_smooth <- function(fmla = station ~ param - 1, theta = NULL, n_samp = 500, n_
         chain = .x,
         p = p,
         fmla = fmla,
+        type = type,
         theta = NULL,
         n_samp = n_samp
       )
@@ -47,6 +48,7 @@ ms_smooth_sample <- function(
     chain,
     p,
     fmla,
+    type = "spatial",
     theta,
     n_samp = 500
 ) {
@@ -54,9 +56,15 @@ ms_smooth_sample <- function(
 
   p()
 
-  params <- init_params()
-  len_eta <- nrow(params$Z)
-  len_nu <- ncol(params$Z)
+  params <- init_params(type = type, n_samp = n_samp)
+
+  if (type == "basic") {
+    len_eta <- 4 * nrow(stations)
+    len_nu <- 4
+  } else if (type == "spatial") {
+    len_eta <- 4 * nrow(stations)
+    len_nu <- 0
+  }
 
 
   theta_samp <- matrix(nrow = n_samp, ncol = length(params$theta))
@@ -66,13 +74,7 @@ ms_smooth_sample <- function(
   i <- 1
 
   theta_samp[i, ] <- params$theta
-
-
-  x_samp[i, ] <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
-
-  params$x <- x_samp[i, ]
-  params$eta <- params$x[1:len_eta]
-  params$nu <- params$x[-(1:len_eta)]
+  x_samp[i, ] <- as.numeric(params$x)
 
 
   while (i < n_samp) {
@@ -82,11 +84,7 @@ ms_smooth_sample <- function(
     params <- update_theta(params)
 
     theta_samp[i, ] <- params$theta
-
-    x_samp[i, ] <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
-    params$x <- x_samp[i, ]
-    params$eta <- params$x[1:len_eta]
-    params$nu <- params$x[-(1:len_eta)]
+    x_samp[i, ] <- params$x
 
   }
 

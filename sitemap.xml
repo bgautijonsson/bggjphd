@@ -46,13 +46,25 @@
     <loc>http://bggj.is/bggjphd/reference/init_eta.html</loc>
   </url>
   <url>
+    <loc>http://bggj.is/bggjphd/reference/init_eta_spatial.html</loc>
+  </url>
+  <url>
     <loc>http://bggj.is/bggjphd/reference/init_nu.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/init_params.html</loc>
   </url>
   <url>
+    <loc>http://bggj.is/bggjphd/reference/init_params_basic.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/init_params_spatial.html</loc>
+  </url>
+  <url>
     <loc>http://bggj.is/bggjphd/reference/init_theta.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/init_theta_spatial.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/link_shape.html</loc>
@@ -73,7 +85,16 @@
     <loc>http://bggj.is/bggjphd/reference/make_Q_e.html</loc>
   </url>
   <url>
+    <loc>http://bggj.is/bggjphd/reference/make_Q_e_spatial.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/make_Q_eta_cond_etahat_spatial.html</loc>
+  </url>
+  <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_nu.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/make_Q_u.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_Q_x.html</loc>
@@ -83,6 +104,9 @@
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_Z.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/make_mu_eta_cond_etahat_spatial.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/make_mu_nu.html</loc>
@@ -112,6 +136,15 @@
     <loc>http://bggj.is/bggjphd/reference/neg_log_lik_gev_trend.html</loc>
   </url>
   <url>
+    <loc>http://bggj.is/bggjphd/reference/pi_eta_cond_theta_etahat_spatial.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/pi_eta_cond_theta_spatial.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/pi_etahat_cond_eta_theta_spatial.html</loc>
+  </url>
+  <url>
     <loc>http://bggj.is/bggjphd/reference/pi_etahat_cond_x_theta.html</loc>
   </url>
   <url>
@@ -121,6 +154,12 @@
     <loc>http://bggj.is/bggjphd/reference/pi_theta_cond_etahat.html</loc>
   </url>
   <url>
+    <loc>http://bggj.is/bggjphd/reference/pi_theta_cond_etahat_spatial.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/pi_theta_spatial.html</loc>
+  </url>
+  <url>
     <loc>http://bggj.is/bggjphd/reference/pi_x_cond_theta.html</loc>
   </url>
   <url>
@@ -128,6 +167,9 @@
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/propose_theta.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/sample_pi_eta_cond_etahat_spatial.html</loc>
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/sample_pi_x_cond_etahat.html</loc>
@@ -140,5 +182,11 @@
   </url>
   <url>
     <loc>http://bggj.is/bggjphd/reference/update_theta.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/update_theta_basic.html</loc>
+  </url>
+  <url>
+    <loc>http://bggj.is/bggjphd/reference/update_theta_spatial.html</loc>
   </url>
 </urlset>

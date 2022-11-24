@@ -7,10 +7,12 @@
 #'
 #' @examples
 pi_theta_spatial <- function(theta) {
-  log_sd_e <- theta[1:4]
+  log_prec_e <- theta[1:4]
+  prec_e <- exp(log_prec_e)
+  sd_e <- exp(-log_prec_e / 2)
   out <- 0
   for (i in 1:4) {
-    out <- out + dnorm(log_sd_e[i], mean = 0, sd = 5, log = T)
+    out <- out + log(sd_e[i]) - sd_e[i]
   }
 
   out
@@ -37,12 +39,11 @@ pi_theta_spatial <- function(theta) {
 pi_theta_cond_etahat_spatial <- function(
     theta,
     eta,
-    chol_Q_e,
     chol_Q_eta_cond_etahat, mu_eta_cond_etahat
 ) {
   pi_theta_spatial(theta) +
     pi_etahat_cond_eta_theta_spatial(eta) +
-    pi_eta_cond_theta_spatial(eta, chol_Q_e) -
+    pi_eta_cond_theta_spatial(theta) -
     pi_eta_cond_theta_etahat_spatial(eta, chol_Q_eta_cond_etahat, mu_eta_cond_etahat)
 }
 
@@ -57,15 +58,35 @@ pi_theta_cond_etahat_spatial <- function(
 #' @export
 #'
 #' @examples
-pi_eta_cond_theta_spatial <- function(eta, chol_Q_e) {
+pi_eta_cond_theta_spatial <- function(theta) {
   t <- Matrix::t
-  dmvn.sparse(
-    x = t(eta),
-    mu = rep(0, length(eta)),
-    CH = chol_Q_e,
-    prec = TRUE,
-    log = TRUE
-  )
+  # dmvn.sparse(
+  #   x = t(eta),
+  #   mu = rep(0, length(eta)),
+  #   CH = chol_Q_e,
+  #   prec = TRUE,
+  #   log = TRUE
+  # )
+  #
+  # # D <- Matrix::determinant(Q_e, logarithm = T)
+  # #
+  # # D <- D$modulus * D$sign
+  # #
+  # #
+  # as.numeric(D/2 - t(eta) %*% Q_e %*% eta / 2)
+
+  out <- 0
+  n_stations <- nrow(stations)
+  log_prec <- theta
+  prec <- exp(log_prec)
+  log_sd <- -log_prec / 2
+
+  for (i in 1:4) {
+    out <- out - (n_stations - 1) * log_sd[i]
+  }
+
+  as.numeric(out)
+
 }
 
 #' Log density of x conditioned on etahat and theta

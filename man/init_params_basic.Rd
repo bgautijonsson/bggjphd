@@ -4,7 +4,7 @@
 \alias{init_params_basic}
 \title{Title}
 \usage{
-init_params_basic(n_samp = n_samp)
+init_params_basic(n_samp = 500)
 }
 \description{
 Title

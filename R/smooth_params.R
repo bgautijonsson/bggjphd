@@ -40,7 +40,7 @@ update_theta <- function(params, type = "spatial") {
 #' @return
 #'
 #' @examples
-init_params_basic <- function(n_samp = n_samp) {
+init_params_basic <- function(n_samp = 500) {
 
   theta <- init_theta()
   priors <- get_priors()
@@ -161,8 +161,14 @@ update_theta_basic <- function(params) {
   }
 
   params$x <- sample_pi_x_cond_etahat(params$mu_x_cond_etahat, params$chol_Q_x_cond_etahat)
-  params$eta <- params$x[seq_len(params$eta)]
-  params$nu <- params$x[-seq_len(params$eta)]
+  params$eta <- Matrix(
+    params$x[seq_len(nrow(params$eta))],
+    ncol = 1
+  )
+  params$nu <- Matrix(
+    params$x[-seq_len(nrow(params$eta))],
+    ncol = 1
+  )
 
   params$accept <- (99*params$accept + accepted)/100
 
@@ -185,7 +191,7 @@ init_params_spatial <- function(n_samp = n_samp) {
 
   x <- init_eta_spatial(theta)
   Q_e <- make_Q_e_spatial(theta)
-  chol_Q_e <- Cholesky(Q_e)
+  # chol_Q_e <- Cholesky(Q_e)
 
   eta_zero <- Matrix(
     0,
@@ -202,7 +208,7 @@ init_params_spatial <- function(n_samp = n_samp) {
   list(
     "x" = x,
     "Q_e" = Q_e,
-    "chol_Q_e" = chol_Q_e,
+    # "chol_Q_e" = chol_Q_e,
     "eta_zero" = eta_zero,
     "Q_eta_cond_etahat" = Q_eta_cond_etahat,
     "mu_eta_cond_etahat" = mu_eta_cond_etahat,
@@ -211,7 +217,9 @@ init_params_spatial <- function(n_samp = n_samp) {
     "accept" = 0.44,
     "iter" = 1,
     "n_samp" = n_samp,
-    "mult" = 2.3
+    "mult" = 2.3,
+    "mean" = rep(0, 4),
+    "variance" = rep(1, 4)
   )
 }
 
@@ -231,7 +239,7 @@ update_theta_spatial <- function(params) {
   theta_prop <- params$theta_prop
 
   Q_e_prop <- make_Q_e_spatial(theta_prop)
-  chol_Q_e_prop <- Cholesky(Q_e_prop)
+  # chol_Q_e_prop <- Cholesky(Q_e_prop)
 
   Q_eta_cond_etahat_prop <- make_Q_eta_cond_etahat_spatial(Q_e_prop)
   mu_eta_cond_etahat_prop <- make_mu_eta_cond_etahat_spatial(Q_eta_cond_etahat_prop)
@@ -242,14 +250,12 @@ update_theta_spatial <- function(params) {
   pi_new <- pi_theta_cond_etahat_spatial(
     theta_prop,
     params$eta_zero,
-    chol_Q_e_prop,
     chol_Q_eta_cond_etahat_prop, mu_eta_cond_etahat_prop
   )
 
   pi_old <- pi_theta_cond_etahat_spatial(
     params$theta,
     params$eta_zero,
-    params$chol_Q_e,
     params$chol_Q_eta_cond_etahat, params$mu_eta_cond_etahat
   )
 
@@ -257,7 +263,7 @@ update_theta_spatial <- function(params) {
 
   if (pi_new - pi_old > log(runif(1))) {
     params$Q_e <- Q_e_prop
-    params$chol_Q_e <- chol_Q_e_prop
+    # params$chol_Q_e <- chol_Q_e_prop
 
     params$Q_eta_cond_etahat <- Q_eta_cond_etahat_prop
     params$mu_eta_cond_etahat <- mu_eta_cond_etahat_prop
@@ -273,6 +279,11 @@ update_theta_spatial <- function(params) {
 
 
   params$accept <- (99*params$accept + accepted)/100
+
+  if (params$iter < params$n_samp / 2) {
+    params$mean <- (99*params$mean + params$theta)/100
+    params$variance <- (99*params$variance + (params$theta - params$mean)^2) / 100
+  }
 
   params
 

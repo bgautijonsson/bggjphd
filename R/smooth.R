@@ -31,7 +31,7 @@ ms_smooth <- function(fmla = station ~ param - 1, type = "spatial", theta = NULL
     class = "sticky"
   )
 
-  tidy_results(out)
+  tidy_results(out, type = type)
 
 }
 
@@ -81,7 +81,7 @@ ms_smooth_sample <- function(
     i <- i + 1
     p()
 
-    params <- update_theta(params)
+    params <- update_theta(params, type = type)
 
     theta_samp[i, ] <- params$theta
     x_samp[i, ] <- params$x

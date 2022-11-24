@@ -22,7 +22,7 @@ init_eta_spatial <- function(theta) {
   n_stations <- nrow(stations)
   n_param <- 4 * n_stations
 
-  log_sd <- theta
+  log_sd <- -theta/2
   sd <- exp(log_sd)
   sd <- rep(sd, each = n_stations)
 
@@ -58,10 +58,10 @@ make_Q_e_spatial <- function(theta) {
 
   Q_e <- bdiag(
     list(
-      prec[1] * (Q_u + Diagonal(n = n_stations, x = 1e-8)),
-      prec[2] * (Q_u + Diagonal(n = n_stations, x = 1e-8)),
-      prec[3] * (Q_u + Diagonal(n = n_stations, x = 1e-8)),
-      prec[4] * (Q_u + Diagonal(n = n_stations, x = 1e-8))
+      prec[1] * Q_u,
+      prec[2] * Q_u,
+      prec[3] * Q_u,
+      prec[4] * Q_u
     )
   )
 

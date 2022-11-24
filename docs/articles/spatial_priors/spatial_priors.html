@@ -45,6 +45,7 @@
     <a class="dropdown-item" href="../../articles/max/max.html">The Max Step</a>
     <a class="dropdown-item" href="../../articles/simple_priors/simple_priors.html">The Smooth Step: Simple exchangeable hierarchical priors</a>
     <a class="dropdown-item" href="../../articles/spatial_priors/spatial_priors.html">The Smooth Step: Simple spatial priors</a>
+    <a class="dropdown-item" href="../../articles/timeandspace/timeandspace.html">Estimating time and memory needed for calculations</a>
   </div>
 </li>
 <li class="nav-item">
@@ -83,17 +84,55 @@
 
     
     
+<p>The latent parameters, <span class="math inline">\(\psi\)</span>,
+<span class="math inline">\(\tau\)</span>, <span class="math inline">\(\phi\)</span>, and <span class="math inline">\(\gamma\)</span>, are given intrinsic random walk
+spatial priors, for example</p>
+<p><span class="math display">\[
+\begin{aligned}
+\psi &amp;\sim \mathcal N(\mathbf 0, \tau_\psi \cdot Q_u) \\
+\sigma_\psi &amp;= \frac{1}{\sqrt\tau_\psi} \\
+\sigma_\psi &amp;\sim \mathrm{Exp}(1)
+\end{aligned}
+\]</span></p>
+<p>Here, <span class="math inline">\(Q_u\)</span> is defined by</p>
+<p><span class="math display">\[
+Q_u = R \otimes I + I \otimes R,
+\]</span></p>
+<p>where <span class="math inline">\(I\)</span> is the identity matrix
+and</p>
+<p><span class="math display">\[
+R = \begin{bmatrix}
+1 &amp; -1 &amp; &amp; &amp; &amp; &amp; \\
+-1 &amp; 2 &amp; -1 &amp; &amp; &amp; &amp; \\
+&amp; -1 &amp; 2 &amp; -1 &amp; &amp; &amp; \\
+&amp; &amp; \ddots &amp; \ddots &amp; \ddots &amp; &amp; \\
+&amp; &amp; &amp;-1 &amp;2 &amp;-1 &amp; \\
+&amp; &amp; &amp; &amp; -1 &amp; 1\\
+\end{bmatrix}.
+\]</span></p>
 <p>The results were obtained by running <code><a href="../../reference/ms_smooth.html">ms_smooth()</a></code> in
 parrallel on four cores with four chains each run for 4000 samples. Half
 of those samples were designated as warm-up and so we have a total of
 8000 samples from the posterior.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n_iter</span> <span class="op">&lt;-</span> <span class="fl">4000</span></span>
-<span><span class="fu">plan</span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="fu">with_progress</span><span class="op">(</span><span class="op">{</span></span>
-<span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ms_smooth.html">ms_smooth</a></span><span class="op">(</span>n_samp <span class="op">=</span> <span class="va">n_iter</span>, type <span class="op">=</span> <span class="st">"spatial"</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="fu">plan</span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="mcmc-diagnostics">MCMC Diagnostics<a class="anchor" aria-label="anchor" href="#mcmc-diagnostics"></a>
+</h2>
+<div class="section level3">
+<h3 id="trace-plots">Trace plots<a class="anchor" aria-label="anchor" href="#trace-plots"></a>
+</h3>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-4-1.png" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="autocorrelation-functions">Autocorrelation functions<a class="anchor" aria-label="anchor" href="#autocorrelation-functions"></a>
+</h3>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="acceptance-probability">Acceptance probability<a class="anchor" aria-label="anchor" href="#acceptance-probability"></a>
+</h3>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-6-1.png" width="100%"></p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
 </h2>
@@ -142,31 +181,31 @@ ess_tail
 theta[1]
 </td>
 <td style="text-align:right;">
-7.277
+7.244
 </td>
 <td style="text-align:right;">
-7.277
+7.239
 </td>
 <td style="text-align:right;">
-0.193
+0.188
 </td>
 <td style="text-align:right;">
-0.193
+0.184
 </td>
 <td style="text-align:right;">
-6.963
+6.944
 </td>
 <td style="text-align:right;">
-7.601
+7.571
 </td>
 <td style="text-align:right;">
-1.010
+1.003
 </td>
 <td style="text-align:right;">
-422.205
+375.376
 </td>
 <td style="text-align:right;">
-738.645
+741.709
 </td>
 </tr>
 <tr>
@@ -174,31 +213,31 @@ theta[1]
 theta[2]
 </td>
 <td style="text-align:right;">
-5.659
+5.626
 </td>
 <td style="text-align:right;">
-5.655
+5.625
 </td>
 <td style="text-align:right;">
-0.180
+0.182
 </td>
 <td style="text-align:right;">
-0.177
+0.186
 </td>
 <td style="text-align:right;">
-5.365
+5.324
 </td>
 <td style="text-align:right;">
-5.972
+5.921
 </td>
 <td style="text-align:right;">
-1.006
+1.011
 </td>
 <td style="text-align:right;">
-431.415
+489.135
 </td>
 <td style="text-align:right;">
-709.846
+765.145
 </td>
 </tr>
 <tr>
@@ -206,31 +245,31 @@ theta[2]
 theta[3]
 </td>
 <td style="text-align:right;">
-3.910
+3.888
 </td>
 <td style="text-align:right;">
-3.909
+3.885
 </td>
 <td style="text-align:right;">
-0.154
+0.147
 </td>
 <td style="text-align:right;">
-0.148
+0.149
 </td>
 <td style="text-align:right;">
-3.661
+3.647
 </td>
 <td style="text-align:right;">
-4.176
+4.133
 </td>
 <td style="text-align:right;">
-1.005
+1.012
 </td>
 <td style="text-align:right;">
-667.723
+549.055
 </td>
 <td style="text-align:right;">
-822.880
+1187.804
 </td>
 </tr>
 <tr>
@@ -238,43 +277,205 @@ theta[3]
 theta[4]
 </td>
 <td style="text-align:right;">
-4.815
+4.794
 </td>
 <td style="text-align:right;">
-4.812
+4.783
 </td>
 <td style="text-align:right;">
-0.177
+0.188
 </td>
 <td style="text-align:right;">
-0.174
+0.189
 </td>
 <td style="text-align:right;">
-4.529
+4.505
 </td>
 <td style="text-align:right;">
 5.117
 </td>
 <td style="text-align:right;">
-1.006
+1.003
 </td>
 <td style="text-align:right;">
-557.070
+503.752
 </td>
 <td style="text-align:right;">
-1023.174
+791.724
 </td>
 </tr>
 </tbody>
 </table>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-6-1.png" width="100%"></p>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-7-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
 </div>
 <div class="section level4">
 <h4 id="on-standard-deviation-scale">On standard deviation scale<a class="anchor" aria-label="anchor" href="#on-standard-deviation-scale"></a>
 </h4>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
+<table class="table table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+variable
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+median
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+mad
+</th>
+<th style="text-align:right;">
+q5
+</th>
+<th style="text-align:right;">
+q95
+</th>
+<th style="text-align:right;">
+rhat
+</th>
+<th style="text-align:right;">
+ess_bulk
+</th>
+<th style="text-align:right;">
+ess_tail
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+theta[1]
+</td>
+<td style="text-align:right;">
+7.244
+</td>
+<td style="text-align:right;">
+7.239
+</td>
+<td style="text-align:right;">
+0.188
+</td>
+<td style="text-align:right;">
+0.184
+</td>
+<td style="text-align:right;">
+6.944
+</td>
+<td style="text-align:right;">
+7.571
+</td>
+<td style="text-align:right;">
+1.003
+</td>
+<td style="text-align:right;">
+375.376
+</td>
+<td style="text-align:right;">
+741.709
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+theta[2]
+</td>
+<td style="text-align:right;">
+5.626
+</td>
+<td style="text-align:right;">
+5.625
+</td>
+<td style="text-align:right;">
+0.182
+</td>
+<td style="text-align:right;">
+0.186
+</td>
+<td style="text-align:right;">
+5.324
+</td>
+<td style="text-align:right;">
+5.921
+</td>
+<td style="text-align:right;">
+1.011
+</td>
+<td style="text-align:right;">
+489.135
+</td>
+<td style="text-align:right;">
+765.145
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+theta[3]
+</td>
+<td style="text-align:right;">
+3.888
+</td>
+<td style="text-align:right;">
+3.885
+</td>
+<td style="text-align:right;">
+0.147
+</td>
+<td style="text-align:right;">
+0.149
+</td>
+<td style="text-align:right;">
+3.647
+</td>
+<td style="text-align:right;">
+4.133
+</td>
+<td style="text-align:right;">
+1.012
+</td>
+<td style="text-align:right;">
+549.055
+</td>
+<td style="text-align:right;">
+1187.804
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+theta[4]
+</td>
+<td style="text-align:right;">
+4.794
+</td>
+<td style="text-align:right;">
+4.783
+</td>
+<td style="text-align:right;">
+0.188
+</td>
+<td style="text-align:right;">
+0.189
+</td>
+<td style="text-align:right;">
+4.505
+</td>
+<td style="text-align:right;">
+5.117
+</td>
+<td style="text-align:right;">
+1.003
+</td>
+<td style="text-align:right;">
+503.752
+</td>
+<td style="text-align:right;">
+791.724
+</td>
+</tr>
+</tbody>
+</table>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level3">
@@ -283,8 +484,8 @@ theta[4]
 <div class="section level4">
 <h4 id="comparing-ml-and-mcmc-estimates">Comparing ML and MCMC estimates<a class="anchor" aria-label="anchor" href="#comparing-ml-and-mcmc-estimates"></a>
 </h4>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
 <p><img src="spatial_priors_files/figure-html/unnamed-chunk-11-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-12-1.png" width="100%"></p>
 </div>
 <div class="section level4">
 <h4 id="spatial-distributions">Spatial Distributions<a class="anchor" aria-label="anchor" href="#spatial-distributions"></a>
@@ -295,12 +496,12 @@ theta[4]
 <div class="section level6">
 <h6 id="psi">psi<a class="anchor" aria-label="anchor" href="#psi"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-14-1.png" width="100%"></p>
 </div>
 <div class="section level6">
 <h6 id="mu">mu<a class="anchor" aria-label="anchor" href="#mu"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-14-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-15-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level5">
@@ -309,12 +510,12 @@ theta[4]
 <div class="section level6">
 <h6 id="tau">tau<a class="anchor" aria-label="anchor" href="#tau"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-15-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
 </div>
 <div class="section level6">
 <h6 id="sigma">sigma<a class="anchor" aria-label="anchor" href="#sigma"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-17-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level5">
@@ -323,12 +524,12 @@ theta[4]
 <div class="section level6">
 <h6 id="phi">phi<a class="anchor" aria-label="anchor" href="#phi"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-17-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-18-1.png" width="100%"></p>
 </div>
 <div class="section level6">
 <h6 id="xi">xi<a class="anchor" aria-label="anchor" href="#xi"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-18-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level5">
@@ -337,12 +538,12 @@ theta[4]
 <div class="section level6">
 <h6 id="gamma">gamma<a class="anchor" aria-label="anchor" href="#gamma"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
 </div>
 <div class="section level6">
 <h6 id="delta">Delta<a class="anchor" aria-label="anchor" href="#delta"></a>
 </h6>
-<p><img src="spatial_priors_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
+<p><img src="spatial_priors_files/figure-html/unnamed-chunk-21-1.png" width="100%"></p>
 </div>
 </div>
 </div>

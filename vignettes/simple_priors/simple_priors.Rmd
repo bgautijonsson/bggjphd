@@ -26,6 +26,7 @@ library(GGally)
 library(scales)
 library(cowplot)
 library(kableExtra)
+library(arrow)
 theme_set(theme_half_open())
 ```
 
@@ -94,58 +95,87 @@ The results were obtained by running `ms_smooth()` in parrallel on four cores wi
 ```{r}
 #| eval: false
 #| echo: true
-n_iter <- 4000
+n_iter <- 2000
 plan(multisession, workers = 4)
 with_progress({
-  results <- ms_smooth(n_samp = n_iter)
+  results <- ms_smooth(n_samp = n_iter, type = "basic")
 })
 plan(sequential)
-```
 
+write_rds(results, "results.rds")
 
-```{r}
-if (!file.exists("results.rds")) {
-  n_iter <- 4000
-  plan(multisession, workers = 4)
-  with_progress({
-    results <- ms_smooth(n_samp = n_iter)
-  })
-  plan(sequential)
-  write_rds(results, "results.rds")
-} else {
-  results <- read_rds("results.rds")
-  n_iter <- results |> pull(.iteration) |> max()
-}
-```
+results |> 
+  subset_draws("theta") |> 
+  as_tibble() |> 
+  write_parquet("data/theta_results.parquet")
 
-# Parameters
-
-## Hyperpriors
-
-
-
-### Log precision scale
-
-```{r}
 results |> 
   filter(.iteration > n_iter/2) |> 
   subset_draws(
-    "theta", 
+    c("psi", "tau", "phi", "gamma")
   ) |> 
   summarise_draws() |> 
-  kable(digits = 3) |> 
-  kable_styling(bootstrap_options = c("striped", "hover"))
+  select(variable, mcmc_mean = mean, mcmc_median = median) |> 
+  mutate(station = parse_number(variable),
+         variable = str_replace(variable, "\\[.*$", "")) |> 
+  inner_join(
+    stations,
+    by = "station"
+  ) |> 
+  inner_join(
+    station_estimates |> 
+      select(station, par) |> 
+      unnest(par) |> 
+      rename(ml_estimate = value, variable = name),
+    by = c("station", "variable")
+  ) |> 
+  select(station, proj_x, proj_y, latitude, longitude, variable, ml_estimate, mcmc_mean) |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "psi", "tau", "phi", "gamma"
+    )
+  ) |> 
+  write_parquet("data/station_results.parquet")
 ```
 
+
 ```{r}
-results |> 
+theta_results <- read_parquet("data/theta_results.parquet") |> 
+  as_draws_df()
+
+station_results <- read_parquet("data/station_results.parquet")
+
+n_iter <- theta_results |> 
+  as_tibble() |> 
+  pull(.iteration) |> 
+  max()
+```
+
+
+
+# MCMC Diagnostics
+
+## Trace plots
+
+```{r}
+theta_results |> 
   filter(.iteration > n_iter/2) |>
-  subset_draws("theta") |> 
   mcmc_trace()
 ```
 
+## Autocorrelation functions
+
 ```{r}
-results |> 
+theta_results |> 
+  filter(.iteration > n_iter/2) |> 
+  mcmc_acf_bar()
+```
+
+## Acceptance probability
+
+```{r}
+theta_results |> 
   subset_draws("theta[1]") |> 
   as_tibble() |> 
   rename(value = "theta[1]") |> 
@@ -165,7 +195,7 @@ results |>
   theme(
     plot.margin = margin(t = 5, r = 35, b = 5, l = 5)
   ) +  
-  coord_cartesian(ylim = c(0, 0.5)) +
+  coord_cartesian(ylim = c(0, 1)) +
   labs(
     x = "Iteration",
     y = "Acceptance probability",
@@ -173,15 +203,42 @@ results |>
   )
 ```
 
-### On standard deviation scale
+# Parameters
+
+## Hyperpriors
+
+### Log precision scale
+
+```{r}
+theta_results |> 
+  filter(.iteration > n_iter / 2) |> 
+  summarise_draws() |> 
+  kable(digits = 3) |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
 
 ```{r}
 #| fig.asp: 0.8
-results |> 
+theta_results |> 
   filter(.iteration > n_iter/2) |> 
-  subset_draws(
-    "theta", 
-  ) |> 
+  mcmc_hist_by_chain(
+  )
+```
+
+### On standard deviation scale
+
+```{r}
+theta_results |> 
+  filter(.iteration > n_iter / 2) |> 
+  summarise_draws() |> 
+  kable(digits = 3) |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+```{r}
+#| fig.asp: 0.8
+theta_results |> 
+  filter(.iteration > n_iter/2) |> 
   mcmc_hist_by_chain(
     transformations = function(x) exp(-x/2)
   )
@@ -190,50 +247,12 @@ results |>
 
 ## GEV Parameters
 
-```{r}
-if (!file.exists("station_mcmc_ml.rds")) {
-  
-  plot_dat <- results |> 
-    filter(.iteration > n_iter/2) |> 
-    subset_draws(
-      c("psi", "tau", "phi", "gamma")
-    ) |> 
-    summarise_draws()
-  
-  plot_dat |> 
-    select(variable, mcmc_mean = mean, mcmc_median = median) |> 
-    mutate(station = parse_number(variable),
-           variable = str_replace(variable, "\\[.*$", "")) |> 
-    inner_join(
-      stations,
-      by = "station"
-    ) |> 
-    inner_join(
-      station_estimates |> 
-        select(station, par) |> 
-        unnest(par) |> 
-        rename(ml_estimate = value, variable = name),
-      by = c("station", "variable")
-    ) |> 
-    select(station, proj_x, proj_y, latitude, longitude, variable, ml_estimate, mcmc_mean) |> 
-    write_rds(file = "station_mcmc_ml.rds")
-}
-
-plot_dat <- read_rds("station_mcmc_ml.rds") |> 
-  mutate(
-    variable = fct_relevel(
-      factor(variable),
-      "psi", "tau", "phi", "gamma"
-    )
-  )
-```
-
 ### Comparing ML and MCMC estimates
 
 
 ```{r}
 #| fig.asp: 1
-plot_dat |> 
+station_results |> 
   pivot_longer(c(ml_estimate, mcmc_mean)) |> 
   mutate(
     variable = fct_relevel(
@@ -264,7 +283,7 @@ plot_dat |>
 
 ```{r}
 #| fig.asp: 0.8
-plot_dat |> 
+station_results |> 
   ggplot(aes(ml_estimate, mcmc_mean)) +
   geom_abline(intercept = 0, slope = 1, lty = 2) +
   geom_point() +
@@ -293,7 +312,10 @@ proj_plot <- function(data) {
         "Maximum Likelihood" = "ml_estimate",
         "Posterior Mean" = "mcmc_mean"
       )
-    )
+    ) |> 
+    group_by(name) |> 
+    mutate(value = (value - mean(value)) / sd(value)) |> 
+    ungroup()
   
   
   plot_dat |> 
@@ -316,7 +338,7 @@ proj_plot <- function(data) {
 ##### psi
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "psi") |> 
   proj_plot()
 ```
@@ -324,7 +346,7 @@ plot_dat |>
 ##### mu
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "psi") |> 
   mutate(variable = "mu") |> 
   mutate_at(vars(ml_estimate, mcmc_mean), exp) |> 
@@ -336,7 +358,7 @@ plot_dat |>
 ##### tau
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "tau") |> 
   proj_plot()
 ```
@@ -344,7 +366,7 @@ plot_dat |>
 ##### sigma
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable %in% c("tau", "psi")) |> 
   pivot_longer(c(ml_estimate, mcmc_mean)) |> 
   pivot_wider(names_from = variable, values_from = value) |> 
@@ -360,7 +382,7 @@ plot_dat |>
 ##### phi
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "phi") |> 
   proj_plot()
 ```
@@ -368,7 +390,7 @@ plot_dat |>
 ##### xi
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "phi") |> 
   mutate(variable = "xi") |> 
   mutate_at(vars(ml_estimate, mcmc_mean), link_shape_inverse) |> 
@@ -380,7 +402,7 @@ plot_dat |>
 ##### gamma
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "gamma") |> 
   proj_plot()
 ```
@@ -388,7 +410,7 @@ plot_dat |>
 ##### Delta
 
 ```{r}
-plot_dat |> 
+station_results |> 
   filter(variable == "gamma") |> 
   mutate(variable = "delta") |> 
   mutate_at(vars(ml_estimate, mcmc_mean), link_trend_inverse) |> 

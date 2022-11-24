@@ -18,7 +18,7 @@ propose_theta <- function(params) {
   }
 
   d <- length(theta)
-  mh_sd <-  params$mult * d ^(-1/2)
+  mh_sd <-  params$mult * d ^(-1/2) * sqrt(params$variance)
 
   mh_samples <- rnorm(n = d, mean = 0, sd = mh_sd)
 

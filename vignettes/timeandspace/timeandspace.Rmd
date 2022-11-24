@@ -1,0 +1,225 @@
+---
+title: "Estimating time and memory needed for calculations"
+output: rmarkdown::html_vignette
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10,
+  out.width = "100%",
+  fig.asp = 0.621,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(bggjphd)
+library(tidyverse)
+library(progressr)
+library(future)
+library(bayesplot)
+library(GGally)
+library(scales)
+library(cowplot)
+library(kableExtra)
+library(arrow)
+library(tictoc)
+theme_set(theme_half_open())
+```
+
+
+```{r}
+#| eval: false
+n_iter <- c(
+  100, 200, 400,
+  800, 1600, 3200
+)
+times <- numeric(length(n_iter))
+
+tic.clearlog()
+
+for (i in seq_along(n_iter)) {
+  tic(n_iter[i])
+  plan(multisession, workers = 4)
+  with_progress({
+    results <- ms_smooth(n_samp = n_iter[i], type = "spatial")
+  })
+  plan(sequential)
+  toc(log = TRUE, quiet = FALSE)
+  rm(results)
+  gc()
+}
+
+time_fun <- function(x) {
+  x$toc - x$tic
+}
+
+times <- tic.log(format = FALSE) |> 
+  map_dbl(time_fun)
+
+n_stations <- nrow(stations)
+filename <- str_c(
+  "data/", n_stations, "_stations.csv"
+)
+tibble(
+  n_stations = n_stations,
+  n_iter = n_iter,
+  time = times
+) |> 
+  write_csv(filename)
+```
+
+
+# Time Complexity
+
+```{r}
+d <- str_c("data/", list.files("data")) |> 
+  map(read_csv) |> 
+  bind_rows()
+```
+
+```{r, fig.width = 10, out.width="100%"}
+plot_dat <- d |> 
+  mutate(time_per_station_iter = time / n_iter / n_stations * 1e3,
+         n_stations = factor(n_stations)) 
+
+plot_dat |> 
+  ggplot(aes(n_iter, time_per_station_iter, group = n_stations, col = n_stations)) +
+  geom_line(aes(group = n_stations, col = n_stations)) +
+  geom_point() +
+  geom_text(
+    data = plot_dat |> filter(n_iter == max(n_iter)),
+    aes(label = str_c(n_stations, " stations"), col = n_stations),
+    hjust = 0,
+    nudge_x = 0.01
+  ) +
+  scale_x_log10(
+    breaks = 100 * 2^seq(1:5)
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion()
+  ) +
+  scale_colour_brewer(type = "qual", palette = "Set1") +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(t = 5, r = 45, b = 5, l = 5)
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Number of iterations",
+    y = NULL,
+    col = "Number of stations",
+    title = "Time complexity of Max-and-Smooth sampler",
+    subtitle = "Shown as the number of seconds to perform 1.000 iterations per station"
+  )
+```
+
+# Memory
+
+```{r}
+#| eval: false
+n_iter <- 4000
+
+
+plan(multisession, workers = 4)
+with_progress({
+  results <- ms_smooth(n_samp = n_iter, type = "spatial")
+})
+plan(sequential)
+gc()
+```
+
+
+```{r, fig.width = 10}
+d <- tribble(
+  ~n_stations, ~n_iter, ~ram_mb,
+  400, 1000,  250,
+  400, 2000, 280,
+  400, 3000, 300,
+  400, 4000, 310,
+  900, 1000,  270,
+  900, 2000, 300,
+  900, 3000, 310,
+  900, 4000, 330,
+  1600, 1000, 320,
+  1600, 2000, 350,
+  1600, 3000, 420,
+  1600, 4000, 470,
+  2500, 1000, 340,
+  2500, 2000, 420,
+  2500, 3000, 510,
+  2500, 4000, 610
+) 
+
+plot_dat <- d |> 
+  mutate(value = ram_mb / n_stations / n_iter * 1000,
+         n_stations = factor(n_stations))
+
+plot_dat |> 
+  ggplot(aes(n_iter, value, group = n_stations, col = n_stations)) +
+  geom_line(aes(group = n_stations, col = n_stations)) +
+  geom_point() +
+  geom_text(
+    data = plot_dat |> filter(n_iter == max(n_iter)),
+    aes(label = str_c(n_stations, " stations"), col = n_stations),
+    hjust = 0,
+    nudge_x = 20
+  ) +
+  scale_x_continuous(
+    breaks = 1:4 * 1e3
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion()
+  ) +
+  scale_colour_brewer(type = "qual", palette = "Set1") +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(t = 5, r = 45, b = 5, l = 5)
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Number of iterations",
+    y = NULL,
+    col = "Number of stations",
+    title = "RAM complexity of Max-and-Smooth sampler",
+    subtitle = "Shown as the number of megabytes per station per 1.000 iterations per chain"
+  )
+```
+
+```{r}
+plot_dat |> 
+  ggplot(aes(n_iter, ram_mb, group = n_stations, col = n_stations)) +
+  geom_line(aes(group = n_stations, col = n_stations)) +
+  geom_point() +
+  geom_text(
+    data = plot_dat |> filter(n_iter == max(n_iter)),
+    aes(label = str_c(n_stations, " stations"), col = n_stations),
+    hjust = 0,
+    nudge_x = 20
+  ) +
+  # scale_x_log10(
+  # ) +
+  # scale_y_log10(
+  # ) +
+  scale_colour_brewer(type = "qual", palette = "Set1") +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(t = 5, r = 45, b = 5, l = 5)
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Number of iterations",
+    y = NULL,
+    col = "Number of stations",
+    title = "RAM complexity of Max-and-Smooth sampler",
+    subtitle = "Shown as the number of megabytes per station per 1.000 iterations per chain"
+  )
+```
+
+

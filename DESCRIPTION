@@ -26,6 +26,7 @@ Depends:
     tidyr
 LazyData: true
 Imports: 
+    arrow,
     bayesplot,
     cowplot,
     evd,

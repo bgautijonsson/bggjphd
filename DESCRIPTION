@@ -38,6 +38,7 @@ Imports:
     parallel,
     progressr,
     scales,
+    tictoc,
     vroom
 Suggests: 
     knitr,

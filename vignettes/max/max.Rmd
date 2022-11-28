@@ -22,6 +22,7 @@ library(bggjphd)
 library(tidyverse)
 library(GGally)
 library(cowplot)
+library(arrow)
 theme_set(theme_half_open())
 ```
 
@@ -45,18 +46,7 @@ results |>
       distinct(station, proj_x, proj_y),
     by = "station"
   ) |> 
-  write_csv("data/parameters.csv")
-
-results |> 
-  select(station, par) |> 
-  unnest(par) |> 
-  inner_join(
-    vroom::vroom(
-      "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
-    ) |> 
-      distinct(station, proj_x, proj_y),
-    by = "station"
-  )
+  write_parquet("data/params.parquet")
 ```
 
 
@@ -84,7 +74,7 @@ These transformations make it so that $\xi$ can take values between $-0.8$ and $
 ### Transformed Scale
 
 ```{r}
-params <- read_csv("data/parameters.csv")
+params <- read_parquet("data/params.parquet")
 
 params |> 
   ggplot(aes(value)) +

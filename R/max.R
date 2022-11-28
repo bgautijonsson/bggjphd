@@ -25,11 +25,6 @@ neg_log_lik_gev_trend <- function(y, t, par, priors, links, t0 = 1981) {
 
   if (any(1 + xi * z <= 0)) return(NA)
 
-
-  # out <- - m * log(sigma)
-  # out <- out - (1 + 1/xi) * sum(log(1 + xi * z))
-  # out <- out - sum((1 + xi * z)^{-1/xi})
-
   out <- evd::dgev(x = y, loc = mu, scale = sigma, shape = xi, log = TRUE) |>
     sum()
 
@@ -165,11 +160,6 @@ fit_gev_trend <- function(data, priors = "default", ...) {
     pivot_longer(c(-name1), names_to = "name2", values_to = "value") |>
     mutate_at(vars(name1, name2), function(x) x |> forcats::as_factor() |> forcats::fct_relevel("psi", "tau", "phi", "gamma"))
 
-  # par <-tibble(
-  #   parameter = c("psi", "gamma", "tau", "phi"),
-  #   estimate = par
-  # ) |>
-  #   slice(1, 3, 4, 2)
 
   tibble(hess = list(hess),
          par = list(par))
@@ -184,8 +174,13 @@ fit_gev_trend <- function(data, priors = "default", ...) {
 #' @return A tibble with one row per station and nested columns containing results from the Max step
 #' @export
 #'
-ms_max <- function(priors = "default") {
-  precip |>
+ms_max <- function(data = NULL, priors = "default") {
+
+  if (is.null(data)) {
+    data <- precip
+  }
+
+  data |>
     group_by(station) |>
     group_modify(fit_gev_trend, priors = priors) |>
     ungroup()

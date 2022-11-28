@@ -25,6 +25,40 @@ library(cowplot)
 theme_set(theme_half_open())
 ```
 
+```{r}
+#| eval: false
+
+d <- vroom::vroom(
+  "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
+) |> 
+  select(station, year, precip)
+
+results <- ms_max(data = d)
+
+results |> 
+  select(station, par) |> 
+  unnest(par) |> 
+  inner_join(
+    vroom::vroom(
+      "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
+    ) |> 
+      distinct(station, proj_x, proj_y),
+    by = "station"
+  ) |> 
+  write_csv("data/parameters.csv")
+
+results |> 
+  select(station, par) |> 
+  unnest(par) |> 
+  inner_join(
+    vroom::vroom(
+      "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
+    ) |> 
+      distinct(station, proj_x, proj_y),
+    by = "station"
+  )
+```
+
 
 # Maximum Likelihood Estimation
 
@@ -43,14 +77,16 @@ $$
 
 These transformations make it so that $\xi$ can take values between $-0.8$ and $0.8$, and $\Delta$ can take values between $-0.01$ and $0.01$. 
 
+# Results
+
+## Distributions
+
+### Transformed Scale
+
 ```{r}
-d <- station_estimates |> 
-  ungroup() |> 
-  select(station, par) |> 
-  unnest(par)
+params <- read_csv("data/parameters.csv")
 
-
-d |> 
+params |> 
   ggplot(aes(value)) +
   geom_histogram(bins = 60) +
   facet_wrap("name", scales = "free") +
@@ -61,18 +97,25 @@ d |>
   )
 ```
 
-## GEV parameters
+```{r}
+#| fig-asp: 1
+params |> 
+  pivot_wider() |> 
+  select(-station, -proj_x, -proj_y) |> 
+  ggpairs(progress = FALSE)
+```
 
-We might also be interested in plotting the back-transformed parameters, i.e. $\mu$, $\sigma$, $\xi$, and $\Delta$
+
+### Original Scale
 
 ```{r}
-d |> 
+params |> 
   pivot_wider() |> 
   mutate(mu = exp(psi),
          sigma = exp(tau + psi),
          xi = link_shape_inverse(phi),
          delta = link_trend_inverse(gamma)) |> 
-  select(-psi, -tau, -phi, -gamma) |> 
+  select(-psi, -tau, -phi, -gamma, -proj_x, -proj_y) |> 
   pivot_longer(c(-station)) |> 
   mutate(name = fct_relevel(name, "mu", "sigma", "xi", "delta")) |> 
   ggplot(aes(value)) +
@@ -85,3 +128,208 @@ d |>
   )
 ```
 
+
+```{r}
+#| fig-asp: 1
+params |> 
+  pivot_wider() |> 
+  mutate(mu = exp(psi),
+         sigma = exp(tau + psi),
+         xi = link_shape_inverse(phi),
+         delta = link_trend_inverse(gamma)) |> 
+  select(-psi, -tau, -phi, -gamma) |> 
+  select(-station, -proj_x, -proj_y) |> 
+  ggpairs(progress = FALSE)
+```
+
+
+## Spatial Distribution
+
+### Location
+
+```{r}
+params |> 
+  filter(name == "psi") |> 
+  ggplot(aes(proj_x, proj_y, fill = value)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Psi"
+  )
+```
+
+```{r}
+params |> 
+  filter(name == "psi") |> 
+  ggplot(aes(proj_x, proj_y, fill = exp(value))) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Mu"
+  )
+```
+
+### Scale
+
+```{r}
+params |> 
+  filter(name == "tau") |> 
+  ggplot(aes(proj_x, proj_y, fill = value)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Tau"
+  )
+```
+
+```{r}
+params |> 
+  pivot_wider() |> 
+  mutate(sigma = exp(tau + psi)) |> 
+  ggplot(aes(proj_x, proj_y, fill = sigma)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Sigma"
+  )
+```
+
+### Shape
+
+```{r}
+params |> 
+  filter(name == "phi") |> 
+  ggplot(aes(proj_x, proj_y, fill = value)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Phi"
+  )
+```
+
+```{r}
+params |> 
+  pivot_wider() |> 
+  mutate(xi = link_shape_inverse(phi)) |> 
+  ggplot(aes(proj_x, proj_y, fill = xi)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Xi"
+  )
+```
+
+### Trend
+
+```{r}
+params |> 
+  filter(name == "gamma") |> 
+  mutate(value = ifelse(value > quantile(value, 0.995), quantile(value, 0.995), value)) |> 
+  ggplot(aes(proj_x, proj_y, fill = value)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Gamma",
+    subtitle = "Truncated at the 99.5% quantile"
+  )
+```
+
+```{r}
+params |> 
+  pivot_wider() |> 
+  mutate(delta = link_trend_inverse(gamma)) |> 
+  ggplot(aes(proj_x, proj_y, fill = delta)) +
+  geom_raster(interpolate = TRUE) +
+  scale_x_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_x), pretty(params$proj_x))
+  ) +
+  scale_y_continuous(
+    expand = expansion(),
+    breaks = c(range(params$proj_y), pretty(params$proj_y))
+  ) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "X Projection",
+    y = "Y Projection",
+    fill = NULL,
+    title = "Spatial distribution of Delta"
+  )
+```

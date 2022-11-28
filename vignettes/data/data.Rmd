@@ -43,7 +43,7 @@ The raw data were processed by calculating the yearly maximum over the hourly pr
 ## Maximum precipitation
 
 ```{r}
-#|eval: false
+#| eval: false
 p <- full_data |> 
   ggplot(aes(max_precip, y = after_stat(density))) +
   geom_histogram(bins = 100) +

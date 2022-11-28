@@ -43,7 +43,8 @@ The raw data were processed by calculating the yearly maximum over the hourly pr
 ## Maximum precipitation
 
 ```{r}
-full_data |> 
+#|eval: false
+p <- full_data |> 
   ggplot(aes(max_precip, y = after_stat(density))) +
   geom_histogram(bins = 100) +
   scale_x_continuous(
@@ -58,10 +59,19 @@ full_data |>
     y = NULL,
     title = "Distribution of station-wise maximum precipitation over the period"
   )
+
+ggsave(
+  plot = p,
+  filename = "Figures/figure1.png",
+  width = 8, height = 0.621 * 8, scale = 1.3
+)
 ```
 
+![](Figures/figure1.png)
+
 ```{r}
-full_data |> 
+#| eval: false
+p <- full_data |> 
   ggplot(aes(proj_x, proj_y, fill = max_precip)) +
   geom_raster(
     interpolate = TRUE
@@ -85,12 +95,21 @@ full_data |>
     fill = "Maximum Precipitation",
     title = "Spatial distribution of maximum precipitation"
   )
+
+ggsave(
+  plot = p,
+  filename = "Figures/figure2.png",
+  width = 8, height = 0.621 * 8, scale = 1.3
+)
 ```
+
+![](Figures/figure2.png)
 
 ## Minimum precipitation
 
 ```{r}
-full_data |> 
+#| eval: false
+p <- full_data |> 
   ggplot(aes(min_precip, y = after_stat(density))) +
   geom_histogram(bins = 100) +
   scale_x_continuous(
@@ -105,11 +124,20 @@ full_data |>
     y = NULL,
     title = "Distribution of station-wise minimum precipitation over the period"
   )
+
+ggsave(
+  plot = p,
+  filename = "Figures/figure3.png",
+  width = 8, height = 0.621 * 8, scale = 1.3
+)
 ```
+
+![](Figures/figure3.png)
 
 
 ```{r}
-full_data |> 
+#| eval: false
+p <- full_data |> 
   ggplot(aes(proj_x, proj_y, fill = min_precip)) +
   geom_raster(
     interpolate = TRUE
@@ -133,7 +161,14 @@ full_data |>
     fill = "Minimum Precipitation",
     title = "Spatial distribution of minimum precipitation"
   )
+ggsave(
+  plot = p,
+  filename = "Figures/figure4.png",
+  width = 8, height = 0.621 * 8, scale = 1.3
+)
 ```
+
+![](Figures/figure4.png)
 
 
 # Example data

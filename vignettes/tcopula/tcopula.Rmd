@@ -46,6 +46,8 @@ pgev <- function(y, loc, scale, shape) {
   out
 }
 
+data("twelve_neighbors")
+
 neighbor_types <- tribble(
   ~diff_x, ~diff_y, ~type,
   -2, 0, "ww",
@@ -105,8 +107,6 @@ dat <- twelve_neighbors |>
   ) |> 
   select(year, model_type, station, neighbor, y, x, type) |> 
   arrange(station, model_type, year, neighbor)
-
-data("twelve_neighbors")
 ```
 
 

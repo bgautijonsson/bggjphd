@@ -117,7 +117,7 @@ dat <- twelve_neighbors |>
 
 # Simultaneous estimation
 
-```{r}
+```{r , eval=FALSE}
 #| eval: false
 results <- dat |> 
   select(-neighbor) |> 
@@ -513,7 +513,7 @@ p
 
 # One at a time
 
-```{r}
+```{r , eval=FALSE}
 #| eval: false
 results <- dat |> 
   select(-neighbor) |> 

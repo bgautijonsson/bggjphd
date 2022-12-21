@@ -79,6 +79,8 @@ neighbor_types <- tribble(
   2, 0, "ee"
 )
 
+usethis::use_data(neighbor_types, overwrite = TRUE)
+
 twelve_neighbors <- d |>
   mutate(neighbor = neighbors) |>
   distinct(station, neighbor) |>

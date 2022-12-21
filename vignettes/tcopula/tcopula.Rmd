@@ -46,23 +46,23 @@ pgev <- function(y, loc, scale, shape) {
   out
 }
 
-data("twelve_neighbors")
+# data("twelve_neighbors")
 
-neighbor_types <- tribble(
-  ~diff_x, ~diff_y, ~type,
-  -2, 0, "ww",
-  -1, -1, "sw",
-  -1, 0, "w",
-  -1, 1, "nw",
-  0, -2, "ss",
-  0, -1, "s",
-  0, 1, "n",
-  0, 2, "nn",
-  1, -1, "se",
-  1, 0, "e",
-  1, 1, "ne",
-  2, 0, "ee"
-)
+# neighbor_types <- tribble(
+#   ~diff_x, ~diff_y, ~type,
+#   -2, 0, "ww",
+#   -1, -1, "sw",
+#   -1, 0, "w",
+#   -1, 1, "nw",
+#   0, -2, "ss",
+#   0, -1, "s",
+#   0, 1, "n",
+#   0, 2, "nn",
+#   1, -1, "se",
+#   1, 0, "e",
+#   1, 1, "ne",
+#   2, 0, "ee"
+# )
 
 coef_data <- read_parquet("Data/station_results.parquet") |> 
   select(station, variable, ml_estimate, mcmc_mean) |> 

@@ -106,7 +106,7 @@ dat <- twelve_neighbors |>
   select(year, model_type, station, neighbor, y, x, type) |> 
   arrange(station, model_type, year, neighbor)
 
-
+data("twelve_neighbors")
 ```
 
 

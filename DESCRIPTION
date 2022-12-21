@@ -38,6 +38,7 @@ Imports:
     here,
     kableExtra,
     parallel,
+    patchwork,
     progressr,
     scales,
     tictoc,

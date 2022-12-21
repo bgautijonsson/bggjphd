@@ -49,9 +49,9 @@ neighbors <- foreach(
   cur_id <- cur_station$station
 
   subset(d,
-         subset = (abs(proj_x - cur_x) <= 1) &
-           (abs(proj_y - cur_y) <= 1) &
-           (abs(proj_x - cur_x) + abs(proj_y - cur_y) <= 1) &
+         subset = (abs(proj_x - cur_x) <= 2) &
+           (abs(proj_y - cur_y) <= 2) &
+           (abs(proj_x - cur_x) + abs(proj_y - cur_y) <= 2) &
            (station != cur_id),
          select = station,
          drop = TRUE)
@@ -63,42 +63,53 @@ parallel::stopCluster(cl = my.cluster)
 
 cat(paste0("Algorithm took ", as.numeric(stop - start), " seconds to run."))
 
-neighbors <- d |>
-  mutate(neighbors = neighbors) |>
-  distinct(station, neighbors) |>
-  unnest(neighbors) |>
-  mutate(value = 1)
-
-neighbor_matrix <- crossing(
-  station = unique(neighbors$station),
-  neighbors = unique(neighbors$neighbors)
-) |>
-  left_join(
-    neighbors,
-    by = c("station", "neighbors")
-  ) |>
-  mutate(value = coalesce(value, 0)) |>
-  pivot_wider(names_from = neighbors, values_from = value) |>
-  select(-station)|>
-  as.matrix() |>
-  Matrix()
-
-
-
-
-Q_u <- bandSparse(
-  n = nrow(neighbor_matrix),
-  k = c(0, 1, 30),
-  diagonals =
-    list(
-      rowSums(neighbor_matrix),
-      rep(-1, nrow(neighbor_matrix)),
-      rep(-1, nrow(neighbor_matrix))
-    ),
-  symmetric = TRUE
+neighbor_types <- tribble(
+  ~diff_x, ~diff_y, ~type,
+  -2, 0, "ww",
+  -1, -1, "sw",
+  -1, 0, "w",
+  -1, 1, "nw",
+  0, -2, "ss",
+  0, -1, "s",
+  0, 1, "n",
+  0, 2, "nn",
+  1, -1, "se",
+  1, 0, "e",
+  1, 1, "ne",
+  2, 0, "ee"
 )
 
+twelve_neighbors <- d |>
+  mutate(neighbor = neighbors) |>
+  distinct(station, neighbor) |>
+  unnest(neighbor) |>
+  inner_join(
+    stations |>
+      select(
+        station, station_x = proj_x, station_y = proj_y
+      ),
+    by = "station"
+  ) |>
+  inner_join(
+    stations |>
+      select(
+        neighbor = station,
+        neighbor_x = proj_x,
+        neighbor_y = proj_y
+      ),
+    by = "neighbor"
+  ) |>
+  mutate(
+    diff_x = neighbor_x - station_x,
+    diff_y = neighbor_y - station_y
+    ) |>
+  select(station, neighbor, diff_x, diff_y) |>
+  inner_join(
+    neighbor_types,
+    by = c("diff_x", "diff_y")
+  ) |>
+  select(station, neighbor, type) |>
+  mutate(type = as_factor(type))
 
-
-usethis::use_data(Q_u, overwrite = TRUE)
+usethis::use_data(twelve_neighbors, overwrite = TRUE)
 

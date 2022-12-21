@@ -282,14 +282,30 @@ proj_plot <- function(data) {
       )
     ) |> 
     group_by(name) |> 
-    mutate(value = (value - mean(value)) / sd(value)) |> 
-    ungroup()
+    mutate(
+      value = (value - mean(value)) / sd(value)
+    ) |> 
+    ungroup() |> 
+    mutate(
+      value = case_when(
+        name == "Posterior Mean" ~ value,
+        value < quantile(value, 0.0025) ~ quantile(value, 0.0025),
+        value > quantile(value, 0.9975) ~ quantile(value, 0.9975),
+        TRUE ~ value
+      )
+    )
   
+  min_val <- min(plot_dat$value)
+  max_val <- max(plot_dat$value)
+  
+  lim_range <- max(abs(min_val), abs(max_val))
+  
+  limits <- c(-1, 1) * lim_range
   
   plot_dat |> 
     ggplot(aes(proj_x, proj_y)) +
     geom_raster(aes(fill = value)) +
-    scale_fill_viridis_c() +
+    scale_fill_viridis_c(limits = limits) +
     facet_wrap("name", nrow = 1) +
     coord_cartesian(expand = FALSE) +
     labs(

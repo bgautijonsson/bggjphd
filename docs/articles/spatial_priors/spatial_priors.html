@@ -8,8 +8,8 @@
 <meta name="description" content="bggjphd">
 <title>The Smooth Step: Simple spatial priors • bggjphd</title>
 <script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><meta property="og:title" content="The Smooth Step: Simple spatial priors">
 <meta property="og:description" content="bggjphd">
@@ -45,6 +45,7 @@
     <a class="dropdown-item" href="../../articles/max/max.html">The Max Step</a>
     <a class="dropdown-item" href="../../articles/simple_priors/simple_priors.html">The Smooth Step: Simple exchangeable hierarchical priors</a>
     <a class="dropdown-item" href="../../articles/spatial_priors/spatial_priors.html">The Smooth Step: Simple spatial priors</a>
+    <a class="dropdown-item" href="../../articles/tcopula/tcopula.html">Using a t-copula</a>
     <a class="dropdown-item" href="../../articles/timeandspace/timeandspace.html">Estimating time and memory needed for calculations</a>
   </div>
 </li>
@@ -181,31 +182,31 @@ ess_tail
 theta[1]
 </td>
 <td style="text-align:right;">
-7.244
+7.016
 </td>
 <td style="text-align:right;">
-7.239
+7.011
 </td>
 <td style="text-align:right;">
-0.188
+0.107
 </td>
 <td style="text-align:right;">
-0.184
+0.102
 </td>
 <td style="text-align:right;">
-6.944
+6.850
 </td>
 <td style="text-align:right;">
-7.571
+7.205
 </td>
 <td style="text-align:right;">
-1.003
+1.008
 </td>
 <td style="text-align:right;">
-375.376
+539.793
 </td>
 <td style="text-align:right;">
-741.709
+710.371
 </td>
 </tr>
 <tr>
@@ -213,31 +214,31 @@ theta[1]
 theta[2]
 </td>
 <td style="text-align:right;">
-5.626
+5.425
 </td>
 <td style="text-align:right;">
-5.625
+5.421
 </td>
 <td style="text-align:right;">
-0.182
+0.098
 </td>
 <td style="text-align:right;">
-0.186
+0.094
 </td>
 <td style="text-align:right;">
-5.324
+5.269
 </td>
 <td style="text-align:right;">
-5.921
+5.591
 </td>
 <td style="text-align:right;">
-1.011
+1.004
 </td>
 <td style="text-align:right;">
-489.135
+505.072
 </td>
 <td style="text-align:right;">
-765.145
+757.829
 </td>
 </tr>
 <tr>
@@ -245,31 +246,31 @@ theta[2]
 theta[3]
 </td>
 <td style="text-align:right;">
-3.888
+3.603
 </td>
 <td style="text-align:right;">
-3.885
+3.600
 </td>
 <td style="text-align:right;">
-0.147
+0.089
 </td>
 <td style="text-align:right;">
-0.149
+0.088
 </td>
 <td style="text-align:right;">
-3.647
+3.454
 </td>
 <td style="text-align:right;">
-4.133
+3.745
 </td>
 <td style="text-align:right;">
 1.012
 </td>
 <td style="text-align:right;">
-549.055
+324.215
 </td>
 <td style="text-align:right;">
-1187.804
+443.380
 </td>
 </tr>
 <tr>
@@ -277,31 +278,31 @@ theta[3]
 theta[4]
 </td>
 <td style="text-align:right;">
-4.794
+5.111
 </td>
 <td style="text-align:right;">
-4.783
+5.109
 </td>
 <td style="text-align:right;">
-0.188
+0.141
 </td>
 <td style="text-align:right;">
-0.189
+0.150
 </td>
 <td style="text-align:right;">
-4.505
+4.891
 </td>
 <td style="text-align:right;">
-5.117
+5.347
 </td>
 <td style="text-align:right;">
-1.003
+1.007
 </td>
 <td style="text-align:right;">
-503.752
+477.760
 </td>
 <td style="text-align:right;">
-791.724
+994.252
 </td>
 </tr>
 </tbody>
@@ -350,31 +351,31 @@ ess_tail
 theta[1]
 </td>
 <td style="text-align:right;">
-7.244
+7.016
 </td>
 <td style="text-align:right;">
-7.239
+7.011
 </td>
 <td style="text-align:right;">
-0.188
+0.107
 </td>
 <td style="text-align:right;">
-0.184
+0.102
 </td>
 <td style="text-align:right;">
-6.944
+6.850
 </td>
 <td style="text-align:right;">
-7.571
+7.205
 </td>
 <td style="text-align:right;">
-1.003
+1.008
 </td>
 <td style="text-align:right;">
-375.376
+539.793
 </td>
 <td style="text-align:right;">
-741.709
+710.371
 </td>
 </tr>
 <tr>
@@ -382,31 +383,31 @@ theta[1]
 theta[2]
 </td>
 <td style="text-align:right;">
-5.626
+5.425
 </td>
 <td style="text-align:right;">
-5.625
+5.421
 </td>
 <td style="text-align:right;">
-0.182
+0.098
 </td>
 <td style="text-align:right;">
-0.186
+0.094
 </td>
 <td style="text-align:right;">
-5.324
+5.269
 </td>
 <td style="text-align:right;">
-5.921
+5.591
 </td>
 <td style="text-align:right;">
-1.011
+1.004
 </td>
 <td style="text-align:right;">
-489.135
+505.072
 </td>
 <td style="text-align:right;">
-765.145
+757.829
 </td>
 </tr>
 <tr>
@@ -414,31 +415,31 @@ theta[2]
 theta[3]
 </td>
 <td style="text-align:right;">
-3.888
+3.603
 </td>
 <td style="text-align:right;">
-3.885
+3.600
 </td>
 <td style="text-align:right;">
-0.147
+0.089
 </td>
 <td style="text-align:right;">
-0.149
+0.088
 </td>
 <td style="text-align:right;">
-3.647
+3.454
 </td>
 <td style="text-align:right;">
-4.133
+3.745
 </td>
 <td style="text-align:right;">
 1.012
 </td>
 <td style="text-align:right;">
-549.055
+324.215
 </td>
 <td style="text-align:right;">
-1187.804
+443.380
 </td>
 </tr>
 <tr>
@@ -446,31 +447,31 @@ theta[3]
 theta[4]
 </td>
 <td style="text-align:right;">
-4.794
+5.111
 </td>
 <td style="text-align:right;">
-4.783
+5.109
 </td>
 <td style="text-align:right;">
-0.188
+0.141
 </td>
 <td style="text-align:right;">
-0.189
+0.150
 </td>
 <td style="text-align:right;">
-4.505
+4.891
 </td>
 <td style="text-align:right;">
-5.117
+5.347
 </td>
 <td style="text-align:right;">
-1.003
+1.007
 </td>
 <td style="text-align:right;">
-503.752
+477.760
 </td>
 <td style="text-align:right;">
-791.724
+994.252
 </td>
 </tr>
 </tbody>

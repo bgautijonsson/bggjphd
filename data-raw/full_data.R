@@ -1,8 +1,9 @@
 ## code to prepare `full_data` dataset goes here
 
-full_data <- vroom::vroom(
-  "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
+full_data <- here::here(
+  "yearly_maximum_per_hour.csv"
 ) |>
+  vroom::vroom() |>
   dplyr::group_by(station, proj_x, proj_y, latitude, longitude) |>
   dplyr::summarise(
     min_precip = min(precip),

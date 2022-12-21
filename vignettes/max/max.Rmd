@@ -23,15 +23,15 @@ library(tidyverse)
 library(GGally)
 library(cowplot)
 library(arrow)
+library(here)
 theme_set(theme_half_open())
 ```
 
 ```{r}
 #| eval: false
-
-d <- vroom::vroom(
-  "/Users/bgautijonsson/Documents/Skoli/PhD/PhD_Webpage/Data/yearly_maximum_per_hour.csv"
-) |> 
+here()
+d <- here("yearly_maximum_per_hour.csv") |> 
+  vroom::vroom() |> 
   select(station, year, precip)
 
 results <- ms_max(data = d)

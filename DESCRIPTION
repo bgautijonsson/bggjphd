@@ -28,11 +28,13 @@ LazyData: true
 Imports: 
     arrow,
     bayesplot,
+    corrr,
     cowplot,
     evd,
     foreach,
     furrr,
     future,
+    GGally,
     here,
     kableExtra,
     parallel,
@@ -45,5 +47,4 @@ Suggests:
     rmarkdown,
     devtools,
     usethis,
-    tidyverse,
-    GGally
+    tidyverse

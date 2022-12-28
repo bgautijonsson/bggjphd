@@ -7,7 +7,14 @@
 #' @return Results from the Bayesian samples
 #' @export
 #'
-ms_smooth <- function(fmla = station ~ param - 1, type = "spatial", theta = NULL, n_samp = 500, n_chain = 4) {
+ms_smooth <- function(
+    write_to_disk = FALSE,
+    fmla = station ~ param - 1,
+    type = "spatial",
+    theta = NULL,
+    n_samp = 500,
+    n_chain = 4
+) {
 
   p <- progressr::progressor(steps = n_chain * n_samp + 1)
 
@@ -17,6 +24,7 @@ ms_smooth <- function(fmla = station ~ param - 1, type = "spatial", theta = NULL
       ms_smooth_sample(
         chain = .x,
         p = p,
+        write_to_disk = write_to_disk,
         fmla = fmla,
         type = type,
         theta = NULL,
@@ -48,6 +56,7 @@ ms_smooth_sample <- function(
     chain,
     p,
     fmla,
+    write_to_disk = FALSE,
     type = "spatial",
     theta,
     n_samp = 500
@@ -66,15 +75,36 @@ ms_smooth_sample <- function(
   }
 
 
+  theta_samp_path <- str_c(
+    "theta_samp-",
+    chain,
+    ".csv"
+  )
+  x_samp_path <- str_c(
+    "x_samp-",
+    chain,
+    ".csv"
+  )
 
-  theta_samp <- matrix(nrow = n_samp, ncol = length(params$theta))
-  x_samp <- matrix(nrow = n_samp, ncol = len_eta + len_nu)
+  # theta_samp <- matrix(nrow = n_samp, ncol = length(params$theta))
+  # x_samp <- matrix(nrow = n_samp, ncol = len_eta + len_nu)
 
 
   i <- 1
 
-  theta_samp[i, ] <- params$theta
-  x_samp[i, ] <- as.numeric(params$x)
+  params$theta |>
+    t() |>
+    as.data.frame() |>
+    data.table::fwrite(theta_samp_path, append = FALSE)
+
+  params$x |>
+    as.numeric() |>
+    t() |>
+    as.data.frame() |>
+    data.table::fwrite(x_samp_path, append = FALSE)
+
+  # theta_samp[i, ] <- params$theta
+  # x_samp[i, ] <- as.numeric(params$x)
 
 
   while (i < n_samp) {
@@ -83,12 +113,23 @@ ms_smooth_sample <- function(
 
     params <- update_theta(params, type = type)
 
-    theta_samp[i, ] <- params$theta
-    x_samp[i, ] <- params$x
+    # theta_samp[i, ] <- params$theta
+    # x_samp[i, ] <- params$x
 
+    params$theta |>
+      t() |>
+      as.data.frame() |>
+      write_csv(theta_samp_path, append = TRUE)
+
+    params$x |>
+      as.numeric() |>
+      t() |>
+      as.data.frame() |>
+      write_csv(x_samp_path, append = TRUE)
   }
 
-
+  theta_samp <- data.table::fread(theta_samp_path)
+  x_samp <- data.table::fread(x_samp_path)
 
   list(
     "theta" = theta_samp,

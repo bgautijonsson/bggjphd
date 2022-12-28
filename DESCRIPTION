@@ -30,6 +30,7 @@ Imports:
     bayesplot,
     corrr,
     cowplot,
+    data.table,
     evd,
     foreach,
     furrr,

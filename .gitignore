@@ -12,3 +12,4 @@ yearly_maximum_per_hour_with_neighbors.rds
 inst/doc
 **/**.nc
 yearly_maximum_per_hour.csv
+vignettes/**/**.csv

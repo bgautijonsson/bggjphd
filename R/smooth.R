@@ -53,7 +53,6 @@ ms_smooth_sample <- function(
     n_samp = 500
 ) {
 
-
   p()
 
   params <- init_params(type = type, n_samp = n_samp)
@@ -65,6 +64,7 @@ ms_smooth_sample <- function(
     len_eta <- 4 * nrow(stations)
     len_nu <- 0
   }
+
 
 
   theta_samp <- matrix(nrow = n_samp, ncol = length(params$theta))

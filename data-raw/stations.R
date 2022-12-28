@@ -1,12 +1,21 @@
 ## code to prepare `stations` dataset goes here
 
+# Last group was number 11, modelled december 24th
+# cur_group <- group_df |>
+#   filter(group == 12)
 
 d <- here::here(
   "yearly_maximum_per_hour.csv"
 ) |>
   vroom::vroom() |>
-  dplyr::filter(proj_x <= 50,
-                proj_y <= 50)
+  dplyr::filter(
+    # proj_x >= cur_group$min_x,
+    # proj_x <= cur_group$max_x,
+    # proj_y >= cur_group$min_y,
+    # proj_y <= cur_group$max_y
+    proj_x <= 100,
+    proj_y <= 100
+  )
 
 
 ids <- d |>

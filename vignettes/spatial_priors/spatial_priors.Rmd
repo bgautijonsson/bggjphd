@@ -61,13 +61,6 @@ $$
 
 The results were obtained by running `ms_smooth()` in parrallel on four cores with four chains each run for 4000 samples. Half of those samples were designated as warm-up and so we have a total of 8000 samples from the posterior.
 
-```{r}
-data.table::fread(
-  "theta_samp-3.csv"
-)
-```
-
-
 ```{r, eval=FALSE}
 #| eval: false
 #| echo: false

@@ -193,7 +193,7 @@ plot_dat |>
   labs(
     x = "Neighour effect from spatial model",
     y = "Neighbour effect from ML model",
-    title = "Comparison of neighbour effects in ML and MCMC models"
+    title = "Comparison of Mean of neighbour effects in ML and MCMC models"
   )
 ```
 
@@ -208,7 +208,7 @@ plot_dat |>
   labs(
     x = "Neighour effect from spatial model",
     y = "Neighbour effect from ML model",
-    title = "Comparison of neighbour effects in ML and MCMC models"
+    title = "Comparison of SD of neighbour effects in ML and MCMC models"
   )
 ```
 
@@ -218,7 +218,7 @@ multivariate |>
   pivot_wider(names_from = model_type, values_from = estimate) |> 
   ggplot(aes(mcmc_mean, ml_estimate)) +
   geom_abline(intercept = 0, slope = 1, lty = 2) +
-  geom_point() 
+  geom_point(alpha = 0.1) 
 ```
 
 
@@ -936,14 +936,11 @@ plot_dat <- d |>
 max_est <- max(plot_dat$abs_diff, na.rm = T)
 min_est <- min(plot_dat$abs_diff, na.rm = T)
 scale_size <- max(abs(max_est), abs(min_est), na.rm = T)
-limits <- c(-1, 1) * scale_size
+limits <- c(0, 1) * scale_size
 
 plot_dat |> 
-  ggplot(aes(time, station, fill = diff)) +
+  ggplot(aes(time, station, fill = abs_diff)) +
   geom_raster() +
-  scale_fill_distiller(
-    type = "div", palette = "RdBu", limits = limits,
-  ) +
   scale_fill_viridis_c(limits = limits) +
   coord_cartesian(expand = FALSE)
 ```

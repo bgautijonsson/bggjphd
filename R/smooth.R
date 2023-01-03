@@ -62,7 +62,6 @@ ms_smooth_sample <- function(
     n_samp = 500
 ) {
 
-  start_time <- Sys.time()
   p()
 
   params <- init_params(type = type, n_samp = n_samp)

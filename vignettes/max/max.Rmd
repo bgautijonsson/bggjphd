@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```{r}
 #| message: false
 #| warning: false
-
+options(rmarkdown.html_vignette.check_title = FALSE)
 library(bggjphd)
 library(tidyverse)
 library(GGally)

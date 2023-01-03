@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+options(rmarkdown.html_vignette.check_title = FALSE)
 # library(bggjphd)
 # library(tidyverse)
 # library(progressr)

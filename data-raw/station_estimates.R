@@ -1,5 +1,5 @@
 ## code to prepare `station_estimates` dataset goes here
-devtools::load_all()
+
 library(progressr)
 library(future)
 handlers("cli")

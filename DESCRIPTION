@@ -1,6 +1,6 @@
 Package: bggjphd
 Title: The code and data for my PhD research
-Version: 0.0.2
+Version: 0.0.5
 Authors@R: 
     person("Brynjólfur Gauti", "Guðrúnar Jónsson", , "brynjolfur@hi.is", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4730-5584"))
@@ -18,7 +18,7 @@ Depends:
     Matrix,
     posterior,
     purrr,
-    R (>= 2.10),
+    R (>= 4.2.2),
     readr,
     sparseMVN,
     stringr,

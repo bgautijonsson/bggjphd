@@ -180,8 +180,21 @@ ms_max <- function(data = NULL, priors = "default") {
     data <- precip
   }
 
+  p <- progressr::progressor(steps = length(unique(data$station)))
+
   data |>
     group_by(station) |>
-    group_modify(fit_gev_trend, priors = priors) |>
+    group_nest() |>
+    mutate(
+      results = furrr::future_map(
+        data,
+        ~ {
+          p()
+          fit_gev_trend(.x, priors = priors)
+        }
+      )
+    )|>
+    select(-data) |>
+    unnest(results) |>
     ungroup()
 }

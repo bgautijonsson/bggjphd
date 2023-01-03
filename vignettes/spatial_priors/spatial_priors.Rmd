@@ -28,6 +28,7 @@ library(cowplot)
 library(kableExtra)
 library(arrow)
 theme_set(theme_half_open())
+handlers("cli")
 ```
 
 The latent parameters, $\psi$, $\tau$, $\phi$, and $\gamma$, are given intrinsic random walk spatial priors, for example

@@ -1,5 +1,6 @@
 ## code to prepare `precip` dataset goes here
 
+devtools::load_all()
 d <-here::here(
   "yearly_maximum_per_hour.csv"
 ) |>

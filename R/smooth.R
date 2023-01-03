@@ -62,6 +62,7 @@ ms_smooth_sample <- function(
     n_samp = 500
 ) {
 
+  start_time <- Sys.time()
   p()
 
   params <- init_params(type = type, n_samp = n_samp)
@@ -109,6 +110,7 @@ ms_smooth_sample <- function(
 
   while (i < n_samp) {
     i <- i + 1
+
     p()
 
     params <- update_theta(params, type = type)
@@ -119,13 +121,13 @@ ms_smooth_sample <- function(
     params$theta |>
       t() |>
       as.data.frame() |>
-      write_csv(theta_samp_path, append = TRUE)
+      data.table::fwrite(theta_samp_path, append = TRUE)
 
     params$x |>
       as.numeric() |>
       t() |>
       as.data.frame() |>
-      write_csv(x_samp_path, append = TRUE)
+      data.table::fwrite(x_samp_path, append = TRUE)
   }
 
   theta_samp <- data.table::fread(theta_samp_path)

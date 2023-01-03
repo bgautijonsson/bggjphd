@@ -3,7 +3,7 @@
 # Last group was number 11, modelled december 24th
 # cur_group <- group_df |>
 #   filter(group == 12)
-
+devtools::load_all()
 d <- here::here(
   "yearly_maximum_per_hour.csv"
 ) |>

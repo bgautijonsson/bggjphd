@@ -1,6 +1,15 @@
 ## code to prepare `station_estimates` dataset goes here
+devtools::load_all()
+library(progressr)
+library(future)
+handlers("cli")
 
-station_estimates <-  ms_max(priors = "default")
+plan(multisession, workers = 4)
+with_progress({
+  station_estimates <-  ms_max(priors = "default")
+})
+plan(sequential)
+
 
 usethis::use_data(station_estimates, overwrite = TRUE)
 

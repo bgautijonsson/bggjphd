@@ -1,7 +1,7 @@
 ## code to prepare `precip` dataset goes here
 
 
-d <-here::here(
+d <- here::here(
   "yearly_maximum_per_hour.csv"
 ) |>
   vroom::vroom() |>

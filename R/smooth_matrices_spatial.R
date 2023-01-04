@@ -48,12 +48,23 @@ init_eta_spatial <- function(theta) {
 #' @examples
 make_Q_e_spatial <- function(theta) {
   n_stations <- nrow(stations)
+
+  x_dim <- stations |>
+    pull(proj_x) |>
+    unique() |>
+    length()
+
+  y_dim <- stations |>
+    pull(proj_y) |>
+    unique() |>
+    length()
+
   n_params <- 4 * n_stations
 
   log_prec <- theta
   prec <- exp(log_prec)
 
-  Q_u <- make_Q_u(dim = sqrt(n_stations))
+  Q_u <- make_Q_u(x_dim, y_dim)
 
 
   Q_e <- bdiag(

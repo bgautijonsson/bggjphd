@@ -8,7 +8,8 @@
 #' @export
 #'
 ms_smooth <- function(
-    write_to_disk = FALSE,
+    write_to_disk = TRUE,
+    continue_previous = FALSE,
     fmla = station ~ param - 1,
     type = "spatial",
     theta = NULL,
@@ -25,6 +26,7 @@ ms_smooth <- function(
         chain = .x,
         p = p,
         write_to_disk = write_to_disk,
+        continue_previous = continue_previous,
         fmla = fmla,
         type = type,
         theta = NULL,
@@ -56,7 +58,8 @@ ms_smooth_sample <- function(
     chain,
     p,
     fmla,
-    write_to_disk = FALSE,
+    write_to_disk = TRUE,
+    continue_previous = FALSE,
     type = "spatial",
     theta,
     n_samp = 500

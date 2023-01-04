@@ -18,169 +18,199 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 options(rmarkdown.html_vignette.check_title = FALSE)
-# library(bggjphd)
-# library(tidyverse)
-# library(progressr)
-# library(future)
-# library(bayesplot)
-# library(GGally)
-# library(scales)
-# library(cowplot)
-# library(kableExtra)
-# library(arrow)
-# theme_set(theme_half_open())
+library(bggjphd)
+library(tidyverse)
+library(progressr)
+library(future)
+library(bayesplot)
+library(GGally)
+library(scales)
+library(cowplot)
+library(kableExtra)
+library(arrow)
+theme_set(theme_half_open())
 ```
 
 
 ```{r, eval=FALSE}
-#| eval: false
-#| echo: false
-# n_iter <- 4000
-# cur_group <- 12
-# 
-# plan(multisession, workers = 4)
-# with_progress({
-#   results <- ms_smooth(n_samp = n_iter, type = "spatial")
-# })
-# plan(sequential)
-# 
-# write_rds(
-#   results, 
-#   str_c(
-#     "results_",
-#     cur_group,
-#     ".rds"
-#   )
-# )
+| eval: false
+| echo: false
+n_iter <- 4000
+cur_group <- 12
+
+plan(multisession, workers = 4)
+with_progress({
+  results <- ms_smooth(n_samp = n_iter, type = "spatial")
+})
+plan(sequential)
+
+write_rds(
+  results,
+  str_c(
+    "results_",
+    cur_group,
+    ".rds"
+  )
+)
+```
+
+
+```{r, eval = FALSE}
+for (i in seq_len(12)) {
+  model_file <- str_c(
+    "results_", i, ".rds"
+  )
+
+
+  results <- read_rds(model_file)
+
+
+  results |>
+    subset_draws("theta") |>
+    as_tibble() |>
+    write_parquet(
+      str_c(
+        "data/theta_results_",
+        i,
+        ".parquet"
+      )
+    )
+
+  results |>
+    filter(.iteration > 2000) |>
+    subset_draws(
+      c("psi", "tau", "phi", "gamma")
+    ) |>
+    summarise_draws() |>
+    select(variable, mcmc_mean = mean, mcmc_median = median) |>
+    mutate(station = parse_number(variable),
+           variable = str_replace(variable, "\\[.*$", "")) |>
+    mutate(
+      variable = fct_relevel(
+        factor(variable),
+        "psi", "tau", "phi", "gamma"
+      )
+    ) |>
+    write_parquet(
+      str_c(
+        "data/station_results_",
+        i,
+        ".parquet"
+      )
+    )
+
+  rm(results)
+  gc()
+}
+```
+
+
+
+```{r}
+theta_results <- str_c(
+  "data/theta_results_",
+  1:12,
+  ".parquet"
+) |>
+  imap(
+    function(x, i) {
+      read_parquet(x) |>
+        mutate(
+          group = i
+        )
+    }
+  ) |>
+  bind_rows()
+
+theta_results |>
+  filter(.iteration > 2000) |>
+  as_tibble() |>
+  pivot_longer(c(starts_with("theta"))) |>
+  mutate(group = factor(group)) |>
+  ggplot(aes(value)) +
+  geom_density(aes(fill = group, group = group), alpha = 0.5) +
+  facet_wrap(vars(name), scales  = "free_x")
+```
+
+```{r}
+theta_results |> 
+  pivot_longer(c(contains("theta"))) |> 
+  group_by(group, name) |> 
+  summarise(
+    mean = mean(value),
+    .groups = "drop"
+  ) |> 
+  inner_join(
+    group_df,
+    by = "group"
+  ) |> 
+  mutate(
+    min_x = as.numeric(as.factor(min_x)),
+    min_y = as.numeric(as.factor(min_y)) 
+  ) |> 
+  mutate(
+    mean = as.numeric(scale(mean)),
+    .by = name
+  ) |> 
+  # filter(name == "theta[1]") |> 
+  ggplot(aes(min_x, min_y, fill = mean)) +
+  geom_raster() +
+  scale_fill_viridis_c() +
+  facet_wrap("name")
 ```
 
 
 ```{r}
-# for (i in seq_len(12)) {
-#   model_file <- str_c(
-#     "results_", i, ".rds"
-#   )
-#   
-#   
-#   results <- read_rds(model_file)
-#   
-#   
-#   results |> 
-#     subset_draws("theta") |> 
-#     as_tibble() |> 
-#     write_parquet(
-#       str_c(
-#         "data/theta_results_",
-#         i,
-#         ".parquet"
-#       )
-#     )
-#   
-#   results |> 
-#     filter(.iteration > 2000) |> 
-#     subset_draws(
-#       c("psi", "tau", "phi", "gamma")
-#     ) |> 
-#     summarise_draws() |> 
-#     select(variable, mcmc_mean = mean, mcmc_median = median) |> 
-#     mutate(station = parse_number(variable),
-#            variable = str_replace(variable, "\\[.*$", "")) |> 
-#     mutate(
-#       variable = fct_relevel(
-#         factor(variable),
-#         "psi", "tau", "phi", "gamma"
-#       )
-#     ) |> 
-#     write_parquet(
-#       str_c(
-#         "data/station_results_",
-#         i,
-#         ".parquet"
-#       )
-#     )
-#   
-#   rm(results)
-#   gc()
-# }
-```
-
-
-
-```{r}
-# theta_results <- str_c(
-#   "data/theta_results_",
-#   1:12,
-#   ".parquet"
-# ) |> 
-#   imap(
-#     function(x, i) {
-#       read_parquet(x) |> 
-#         mutate(
-#           group = i
-#         )
-#     }
-#   ) |> 
-#   bind_rows()
-# 
-# theta_results |> 
-#   filter(.iteration > 2000) |> 
-#   as_tibble() |> 
-#   pivot_longer(c(starts_with("theta"))) |> 
-#   mutate(group = factor(group)) |> 
-#   ggplot(aes(value)) +
-#   geom_density(aes(fill = group, group = group), alpha = 0.5) +
-#   facet_wrap(vars(name), scales  = "free_x")
-```
-
-```{r}
-# station_results <- str_c(
-#   "data/station_results_",
-#   1:12,
-#   ".parquet"
-# ) |> 
-#   imap(
-#     function(x, i) {
-#       read_parquet(x) |> 
-#         mutate(
-#           group = i
-#         )
-#     }
-#   ) |> 
-#   bind_rows()
+station_results <- str_c(
+  "data/station_results_",
+  1:12,
+  ".parquet"
+) |>
+  imap(
+    function(x, i) {
+      read_parquet(x) |>
+        mutate(
+          group = i
+        )
+    }
+  ) |>
+  bind_rows()
 ```
 
 
 ```{r}
-# p <- group_df |> 
-#   group_by(
-#     group
-#   ) |> 
-#   group_modify(
-#     function(data, ...) {
-#       crossing(
-#         proj_x = seq(data$min_x, data$max_x),
-#         proj_y = seq(data$min_y, data$max_y)
-#       ) |> 
-#         arrange(
-#           proj_y, proj_x
-#         ) |> 
-#         mutate(station = row_number())
-#     }
-#   ) |> 
-#   inner_join(
-#     station_results,
-#     by = c("station", "group")
-#   ) |> 
-#   group_by(
-#     variable, group
-#   ) |> 
-#   mutate(
-#     value = scale(mcmc_mean) |> as.numeric()
-#   ) |> 
-#   ungroup() |> 
-#   ggplot(aes(proj_x, proj_y, fill = value)) +
-#   geom_raster(interpolate = TRUE) +
-#   scale_fill_viridis_c() +
-#   facet_wrap("variable")
+p <- group_df |>
+  group_by(
+    group
+  ) |>
+  group_modify(
+    function(data, ...) {
+      crossing(
+        proj_x = seq(data$min_x, data$max_x),
+        proj_y = seq(data$min_y, data$max_y)
+      ) |>
+        arrange(
+          proj_y, proj_x
+        ) |>
+        mutate(station = row_number())
+    }
+  ) |>
+  inner_join(
+    station_results,
+    by = c("station", "group")
+  ) |>
+  group_by(
+    variable, group
+  ) |>
+  mutate(
+    value = scale(mcmc_mean) |> as.numeric()
+  ) |>
+  ungroup() |>
+  ggplot(aes(proj_x, proj_y, fill = value)) +
+  geom_raster(interpolate = TRUE) +
+  scale_fill_viridis_c() +
+  facet_wrap("variable")
+
+p
 ```
 

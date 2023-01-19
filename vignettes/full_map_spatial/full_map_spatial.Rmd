@@ -1,5 +1,5 @@
 ---
-title: "The Smooth Step: Simple spatial priors"
+title: "The Smooth Step: Splitting the data into smaller rectangles"
 output: rmarkdown::html_vignette
 ---
 

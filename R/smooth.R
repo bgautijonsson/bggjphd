@@ -120,20 +120,19 @@ ms_smooth_sample <- function(
     # theta_samp[i, ] <- params$theta
     # x_samp[i, ] <- params$x
 
-    params$theta |>
-      t() |>
-      as.data.frame() |>
-      data.table::fwrite(theta_samp_path, append = TRUE)
+    if (i > n_samp / 2) {
+      params$theta |>
+        t() |>
+        as.data.frame() |>
+        data.table::fwrite(theta_samp_path, append = TRUE)
 
-    params$x |>
-      as.numeric() |>
-      t() |>
-      as.data.frame() |>
-      data.table::fwrite(x_samp_path, append = TRUE)
+      params$x |>
+        as.numeric() |>
+        t() |>
+        as.data.frame() |>
+        data.table::fwrite(x_samp_path, append = TRUE)
+    }
   }
-
-  theta_samp <- data.table::fread(theta_samp_path)
-  x_samp <- data.table::fread(x_samp_path)
 
   list(
     "theta" = theta_samp,

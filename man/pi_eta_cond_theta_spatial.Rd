@@ -4,7 +4,7 @@
 \alias{pi_eta_cond_theta_spatial}
 \title{The log density of x conditioned on theta}
 \usage{
-pi_eta_cond_theta_spatial(eta, chol_Q_e)
+pi_eta_cond_theta_spatial(theta)
 }
 \arguments{
 \item{x}{Current values for the latent parameters x}

@@ -1,0 +1,496 @@
+---
+title: "Running the Max-and-Smooth sampler on the whole dataset"
+output: rmarkdown::html_vignette
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10,
+  out.width = "100%",
+  fig.asp = 0.621,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+options(rmarkdown.html_vignette.check_title = FALSE)
+library(bggjphd)
+library(tidyverse)
+library(progressr)
+library(future)
+library(bayesplot)
+library(GGally)
+library(scales)
+library(cowplot)
+library(kableExtra)
+library(arrow)
+theme_set(theme_half_open())
+handlers("cli")
+```
+
+```{r, eval=FALSE}
+#| eval: false
+#| echo: false
+n_iter <- 4000
+plan(multisession, workers = 4)
+with_progress({
+  results <- ms_smooth(n_samp = n_iter, type = "spatial")
+})
+plan(sequential)
+```
+
+```{r, eval = FALSE, include = FALSE}
+theta_files <- glue::glue("theta_samp-{1:4}.csv")
+
+process_theta <- function(filename) {
+  filename |> 
+    vroom::vroom() |> 
+    set_names(
+      glue::glue("theta[{1:4}]")
+    ) |> 
+    mutate(
+      .iteration = row_number()
+    )
+}
+
+map_dfr(
+  theta_files,
+  process_theta
+) |> 
+  mutate(
+    .draw = row_number()
+  ) |> 
+  group_by(.iteration) |> 
+  mutate(
+    .chain = row_number()
+  ) |> 
+  write_parquet(
+    "data/theta_results.parquet"
+  ) 
+
+process_x <- function(file) {
+  my_means <- file |> 
+    vroom::vroom() |> 
+    slice(-(1:2000)) |> 
+    map_dbl(mean)
+  
+}
+
+x_files <- glue::glue("x_samp-{1:4}.csv")
+
+my_means <- map(
+  x_files,
+  get_means
+)
+
+d <- my_means |> 
+  map_dfr(
+    function(x) {
+      tibble(
+        value = x,
+        variable = rep(c("psi", "tau", "phi", "gamma"), each = nrow(stations)),
+        station = rep(seq_len(nrow(stations)), 4)
+      )
+    }
+  ) |> 
+  mutate(
+    chain = row_number(),
+    .by = c(variable, station)
+  )
+
+station_results <- d |> 
+  group_by(variable, station) |> 
+  summarise(
+    mcmc_mean = mean(value)
+  ) |> 
+  ungroup() |> 
+  inner_join(
+    stations,
+    by = "station"
+  ) |> 
+  inner_join(
+    station_estimates |> 
+      select(station, par) |> 
+      unnest(par) |> 
+      rename(ml_estimate = value, variable = name),
+    by = c("station", "variable")
+  ) |> 
+  select(station, proj_x, proj_y, latitude, longitude, variable, ml_estimate, mcmc_mean) |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "psi", "tau", "phi", "gamma"
+    )
+  )
+
+station_results |> 
+  write_parquet(
+    "data/station_results.parquet"
+  )
+```
+
+
+```{r}
+theta_results <- read_parquet("data/theta_results.parquet") |> 
+  as_draws_df()
+
+station_results <- read_parquet("data/station_results.parquet")
+
+n_iter <- theta_results |> 
+  as_tibble() |> 
+  pull(.iteration) |> 
+  max()
+```
+
+
+
+# MCMC Diagnostics
+
+## Trace plots
+
+```{r}
+theta_results |> 
+  filter(.iteration > 2000) |>
+  mcmc_trace()
+```
+
+## Autocorrelation functions
+
+```{r}
+theta_results |> 
+  filter(.iteration > 2000) |> 
+  mcmc_acf_bar()
+```
+
+## Acceptance probability
+
+```{r}
+theta_results |> 
+  subset_draws("theta[1]") |> 
+  as_tibble() |> 
+  rename(value = "theta[1]") |> 
+  group_by(.chain) |> 
+  mutate(accept = 1 * (value != lag(value))) |> 
+  ungroup() |> 
+  ggplot(aes(.iteration, accept, group = .chain)) +
+  geom_smooth(method = "loess", span = 0.3, se = 0) +
+  scale_x_continuous(
+    expand = expansion()
+  ) +
+  scale_y_continuous(
+    breaks = pretty_breaks(5),
+    labels = label_percent(),
+    expand = expansion()
+  ) +
+  theme(
+    plot.margin = margin(t = 5, r = 35, b = 5, l = 5)
+  ) +  
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(
+    x = "Iteration",
+    y = "Acceptance probability",
+    title = "Acceptance probability for theta[1]"
+  )
+```
+
+# Parameters
+
+## Hyperpriors
+
+### Log precision scale
+
+```{r}
+theta_results |> 
+  filter(.iteration > n_iter / 2) |> 
+  summarise_draws() |> 
+  kable(digits = 3) |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+```{r}
+#| fig.asp: 0.8
+theta_results |> 
+  filter(.iteration > n_iter/2) |> 
+  mcmc_hist_by_chain(
+  )
+```
+
+### On standard deviation scale
+
+```{r}
+theta_results |> 
+  filter(.iteration > n_iter / 2) |> 
+  summarise_draws() |> 
+  kable(digits = 3) |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+```{r}
+#| fig.asp: 0.8
+theta_results |> 
+  filter(.iteration > n_iter/2) |> 
+  mcmc_hist_by_chain(
+    transformations = function(x) exp(-x/2)
+  )
+```
+
+
+## GEV Parameters
+
+### Comparing ML and MCMC estimates
+
+
+```{r}
+#| fig.asp: 1
+station_results |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "psi", "tau", "phi", "gamma"
+    ),
+    name = fct_recode(
+      factor(name),
+      "Maximum Likelihood" = "ml_estimate",
+      "Posterior Mean" = "mcmc_mean"
+    )
+  ) |> 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(variable, name), ncol = 2, scales = "free_x") +
+  theme(
+    axis.line.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Distributions of station parameters from ML and MCMC"
+  )
+```
+
+
+```{r}
+#| fig.asp: 0.8
+station_results |> 
+  ggplot(aes(ml_estimate, mcmc_mean)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2) +
+  geom_point(alpha = 0.1) +
+  facet_wrap("variable", scales = "free") +
+  labs(
+    x = "ML Estimate (Max step)",
+    y = "Posterior Mean (Smooth step)",
+    title = "Comparing estimates from the Max and the Smooth steps"
+  )
+```
+
+```{r}
+#| fig.asp: 1
+station_results |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  mutate(
+    mu = exp(psi),
+    sigma = exp(tau + psi),
+    xi = link_shape_inverse(phi),
+    delta = link_trend_inverse(gamma)
+  ) |> 
+  select(-psi, -tau, -phi, -gamma) |> 
+  pivot_longer(c(mu:delta), names_to = "variable", values_to = "value") |> 
+  mutate(
+    variable = fct_relevel(
+      factor(variable),
+      "mu", "sigma", "psi", "delta"
+    ),
+    name = fct_recode(
+      factor(name),
+      "Maximum Likelihood" = "ml_estimate",
+      "Posterior Mean" = "mcmc_mean"
+    )
+  ) |> 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(variable, name), ncol = 2, scales = "free_x") +
+  theme(
+    axis.line.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  ) +
+  labs(
+    x = NULL,
+    y = NULL,
+    title = "Distributions of station parameters from ML and MCMC"
+  )
+```
+
+
+```{r}
+#| fig.asp: 0.8
+station_results |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  mutate(
+    mu = exp(psi),
+    sigma = exp(tau + psi),
+    xi = link_shape_inverse(phi),
+    delta = link_trend_inverse(gamma)
+  ) |> 
+  select(-psi, -tau, -phi, -gamma) |> 
+  pivot_longer(c(mu:delta), names_to = "variable", values_to = "value") |> 
+  pivot_wider(names_from = "name", values_from = "value") |> 
+  ggplot(aes(ml_estimate, mcmc_mean)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2) +
+  geom_point(alpha = 0.1) +
+  facet_wrap("variable", scales = "free") +
+  labs(
+    x = "ML Estimate (Max step)",
+    y = "Posterior Mean (Smooth step)",
+    title = "Comparing estimates from the Max and the Smooth steps"
+  )
+```
+
+### Spatial Distributions
+
+```{r}
+proj_plot <- function(data) {
+  
+  title <- str_c(
+    "Spatial distribution of estimates for ", unique(data$variable)
+  )
+  
+  plot_dat <- data |> 
+    pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+    mutate(
+      name = fct_recode(
+        factor(name),
+        "Maximum Likelihood" = "ml_estimate",
+        "Posterior Mean" = "mcmc_mean"
+      )
+    ) |> 
+    group_by(name) |> 
+    mutate(
+      value = (value - mean(value)) / sd(value)
+    ) |> 
+    ungroup() |> 
+    mutate(
+      value = case_when(
+        name == "Posterior Mean" ~ value,
+        value < quantile(value, 0.0025) ~ quantile(value, 0.0025),
+        value > quantile(value, 0.9975) ~ quantile(value, 0.9975),
+        TRUE ~ value
+      )
+    )
+  
+  min_val <- min(plot_dat$value)
+  max_val <- max(plot_dat$value)
+  
+  lim_range <- max(abs(min_val), abs(max_val))
+  
+  limits <- c(-1, 1) * lim_range
+  
+  plot_dat |> 
+    ggplot(aes(proj_x, proj_y)) +
+    geom_raster(aes(fill = value)) +
+    scale_fill_viridis_c(limits = limits) +
+    facet_wrap("name", nrow = 1) +
+    coord_cartesian(expand = FALSE) +
+    labs(
+      title = title,
+      fill = NULL,
+      x = "X projection",
+      y = "Y projection"
+    )
+}
+```
+
+#### Location
+
+##### psi
+
+```{r}
+station_results |> 
+  filter(variable == "psi") |> 
+  proj_plot()
+```
+
+##### mu
+
+```{r}
+station_results |> 
+  filter(variable == "psi") |> 
+  mutate(variable = "mu") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), exp) |> 
+  proj_plot()
+```
+
+#### Scale
+
+##### tau
+
+```{r}
+station_results |> 
+  filter(variable == "tau") |> 
+  proj_plot()
+```
+
+##### sigma
+
+```{r}
+station_results |> 
+  filter(variable %in% c("tau", "psi")) |> 
+  pivot_longer(c(ml_estimate, mcmc_mean)) |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  mutate(sigma = exp(tau + psi)) |> 
+  select(-psi, -tau) |> 
+  pivot_longer(c(sigma), names_to = "variable", values_to = "value") |> 
+  pivot_wider() |> 
+  proj_plot()
+```
+
+#### Shape
+
+##### phi
+
+```{r}
+station_results |> 
+  filter(variable == "phi") |> 
+  proj_plot()
+```
+
+##### xi
+
+```{r}
+station_results |> 
+  filter(variable == "phi") |> 
+  mutate(variable = "xi") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), link_shape_inverse) |> 
+  proj_plot()
+```
+
+#### Trend
+
+##### gamma
+
+```{r}
+station_results |> 
+  filter(variable == "gamma") |> 
+  proj_plot()
+```
+
+##### Delta
+
+```{r}
+station_results |> 
+  filter(variable == "gamma") |> 
+  mutate(variable = "delta") |> 
+  mutate_at(vars(ml_estimate, mcmc_mean), link_trend_inverse) |> 
+  proj_plot()
+```
+
+
+

@@ -13,8 +13,8 @@ d <- here::here(
     # proj_x <= cur_group$max_x,
     # proj_y >= cur_group$min_y,
     # proj_y <= cur_group$max_y
-    proj_x <= 100,
-    proj_y <= 100
+    # proj_x <= 100,
+    # proj_y <= 100
   )
 
 

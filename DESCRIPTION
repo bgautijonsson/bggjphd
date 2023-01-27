@@ -8,7 +8,7 @@ Description: I'm making and maintaining this package to go along with my PhD wor
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 URL: https://github.com/bgautijonsson/bggjphd,
     http://bggj.is/bggjphd/
 BugReports: https://github.com/bgautijonsson/bggjphd/issues

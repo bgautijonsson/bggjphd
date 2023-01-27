@@ -256,7 +256,7 @@ station_results |>
 station_results |> 
   ggplot(aes(ml_estimate, mcmc_mean)) +
   geom_abline(intercept = 0, slope = 1, lty = 2) +
-  geom_point() +
+  geom_point(alpha = 0.1) +
   facet_wrap("variable", scales = "free") +
   labs(
     x = "ML Estimate (Max step)",
@@ -402,3 +402,5 @@ station_results |>
   mutate_at(vars(ml_estimate, mcmc_mean), link_trend_inverse) |> 
   proj_plot()
 ```
+
+

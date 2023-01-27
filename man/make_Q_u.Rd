@@ -4,7 +4,7 @@
 \alias{make_Q_u}
 \title{Title}
 \usage{
-make_Q_u(dim)
+make_Q_u(x_dim, y_dim)
 }
 \arguments{
 \item{dim}{}

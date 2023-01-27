@@ -7,16 +7,12 @@
 pi_theta_cond_etahat_spatial(
   theta,
   eta,
-  chol_Q_e,
   chol_Q_eta_cond_etahat,
   mu_eta_cond_etahat
 )
 }
 \arguments{
 \item{theta}{The vector containing the prior parameters for latent parameters in x}
-
-\item{chol_Q_e}{Cholesky decomposition of block diagonal matrix containing the hessians
-for each station from the Max step}
 
 \item{y}{The current samples for estimating the outcome values from the Max step}
 
@@ -27,6 +23,9 @@ for each station from the Max step}
 \item{chol_Q_x}{Cholesky decomposition of the latter four parameters in Theta}
 
 \item{Z}{Model matrix as in Y = Z * X + e}
+
+\item{chol_Q_e}{Cholesky decomposition of block diagonal matrix containing the hessians
+for each station from the Max step}
 
 \item{mu_x_cond_y}{Same as mu_x except after conditioning on the values of Y}
 

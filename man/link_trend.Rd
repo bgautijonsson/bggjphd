@@ -4,7 +4,7 @@
 \alias{link_trend}
 \title{Title}
 \usage{
-link_trend(delta, d0 = 0.01)
+link_trend(delta, d0 = 0.008, scale = 0.01)
 }
 \arguments{
 \item{d0}{}

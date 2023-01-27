@@ -4,7 +4,16 @@
 \alias{ms_smooth_sample}
 \title{Helper function for performing sampling}
 \usage{
-ms_smooth_sample(chain, p, fmla, type = "spatial", theta, n_samp = 500)
+ms_smooth_sample(
+  chain,
+  p,
+  fmla,
+  write_to_disk = TRUE,
+  continue_previous = FALSE,
+  type = "spatial",
+  theta,
+  n_samp = 500
+)
 }
 \arguments{
 \item{fmla}{}

@@ -4,7 +4,7 @@
 \alias{link_shape_inverse}
 \title{Title}
 \usage{
-link_shape_inverse(phi, a = 0.0624, b = 0.3956, c = 0.8)
+link_shape_inverse(phi, a = 0.0624, b = 0.3956, c = 0.8, scale = 0.5)
 }
 \arguments{
 \item{c}{}

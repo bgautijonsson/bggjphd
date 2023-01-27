@@ -50,10 +50,13 @@ neg_log_lik_gev_trend <- function(y, t, par, priors, links, t0 = 1981) {
 #' @export
 #'
 #' @examples
-link_shape <- function(xi, a = 0.0624, b = 0.3956, c = 0.8) {
-  # a + b * (log(-log(1 - (xi + 1/2)^(c))))
-  out <- (c + xi) / (c - xi)
-  log(out)
+link_shape <- function(xi, a = 0.0624, b = 0.3956, c = 0.8, scale = 0.5) {
+  b <- -log(1 - (1/2)^c) * (1 - (1/2)^c) * 2^(c - 1) / c
+  a <- -b * log(-log(1 - (1/2)^c))
+
+  out <- a + b * (log(-log(1 - (xi + 1/2)^c)))
+  # out <- log((scale + xi) / (scale - xi))
+  out
 }
 
 #' Title
@@ -67,23 +70,30 @@ link_shape <- function(xi, a = 0.0624, b = 0.3956, c = 0.8) {
 #' @export
 #'
 #' @examples
-link_shape_inverse <- function(phi, a = 0.0624, b = 0.3956, c = 0.8) {
-  # (1 - exp(- exp((phi - a)/b))) ^ (1 / c) - 1/2
-  2 * c * 1 / (1 + exp(-phi)) - c
+link_shape_inverse <- function(phi, a = 0.0624, b = 0.3956, c = 0.8, scale = 0.5) {
+  b <- -log(1 - (1/2)^c) * (1 - (1/2)^c) * 2^(c - 1) / c
+  a <- -b * log(-log(1 - (1/2)^c))
+
+  (1 - exp(-exp((phi - a)/b))) ^ (1 / c) - 1/2
+  # 2 * scale * 1 / (1 + exp(-phi)) - scale
 }
 
 #' Title
 #'
-#' @param delta
-#' @param d0
+#' @param shape
 #'
 #' @return
 #' @export
 #'
 #' @examples
-link_trend <- function(delta, d0 = 0.01) {
-  # 1/2 * d0 * (log(d0 + delta) - log(d0 - delta))
-  out <- (d0 + delta) / (d0 - delta)
+prior_shape <- function(phi, alpha = 4, beta = 4, c = 0.8) {
+  b <- -log(1 - (1/2)^c) * (1 - (1/2)^c) * 2^(c - 1) / c
+  a <- -b * log(-log(1 - (1/2)^c))
+
+  out <- gamma(a + b) / (gamma(a) * gamma(b) * b * c)
+  out <- out * (link_shape_inverse(phi) + 1/2) ^ (alpha - c)
+  out <- out * (1/2 - link_shape_inverse(phi)) ^ (beta - 1)
+  out <- out * exp( (phi - a) / b - exp( (phi - a) / b ))
   log(out)
 }
 
@@ -96,10 +106,39 @@ link_trend <- function(delta, d0 = 0.01) {
 #' @export
 #'
 #' @examples
-link_trend_inverse <- function(gamma, d0 = 0.01) {
-  # d0 * (exp(2 * gamma) - exp(d0)) / (exp(2 * gamma) + exp(d0))
-  2 * d0 * 1 / (1 + exp(-gamma)) - d0
+link_trend <- function(delta, d0 = 0.008, scale = 0.01) {
+  out <- 1/2 * d0 * (log(d0 + delta) - log(d0 - delta))
+  # out <- log((scale + delta) / (scale - delta))
 
+  out
+}
+
+#' Title
+#'
+#' @param delta
+#' @param d0
+#'
+#' @return
+#' @export
+#'
+#' @examples
+link_trend_inverse <- function(gamma, d0 = 0.008, scale = 0.01) {
+  out <- d0 * (exp(2 * gamma / d0) - 1) / (exp(2 * gamma / d0) + 1)
+  # 2 * scale * 1 / (1 + exp(-gamma)) - scale
+
+  out
+}
+
+#' Title
+#'
+#' @param trend
+#'
+#' @return
+#' @export
+#'
+#' @examples
+prior_trend <- function(gamma, d0 = 0.008) {
+  dnorm(gamma, mean = 0, sd = d0 / 2, log = TRUE)
 }
 
 #' A function to calculate and return parameters and Hessian for the generalized extreme distribution with trend
@@ -125,11 +164,18 @@ fit_gev_trend <- function(data, priors = "default", ...) {
 
   gev_estimates <- gev_fit$estimate
 
+  loc_start <- log(gev_estimates[1])
+  scale_start <- log(gev_estimates[2]) - loc_start
+  shape_start <- link_shape(gev_estimates[3])
+
+  if (!is.finite(shape_start)) shape_start <- 0.1
+  trend_start <- 0
+
   starts <- c(
-    log(gev_estimates[1]),
-    log(gev_estimates[2]) - log(gev_estimates[1]),
-    link_shape(gev_estimates[3]),
-    0
+    loc_start,
+    scale_start,
+    shape_start,
+    trend_start
   )
 
 
@@ -138,13 +184,16 @@ fit_gev_trend <- function(data, priors = "default", ...) {
     fn = neg_log_lik_gev_trend,
     y = data$precip,
     priors = priors,
-    t = data$year, hessian = T
+    t = data$year,
+     hessian = TRUE
   )
 
   param_names <- c("psi", "tau", "phi", "gamma")
 
   par <- tibble(
-    name = param_names |> forcats::as_factor() |> forcats::fct_relevel("psi", "tau", "phi", "gamma"),
+    name = param_names |>
+      forcats::as_factor() |>
+      forcats::fct_relevel("psi", "tau", "phi", "gamma"),
     value = m$par
   )
 
@@ -158,7 +207,14 @@ fit_gev_trend <- function(data, priors = "default", ...) {
       name1 = param_names
     ) |>
     pivot_longer(c(-name1), names_to = "name2", values_to = "value") |>
-    mutate_at(vars(name1, name2), function(x) x |> forcats::as_factor() |> forcats::fct_relevel("psi", "tau", "phi", "gamma"))
+    mutate_at(
+      vars(name1, name2),
+      function(x) {
+        x |>
+        forcats::as_factor() |>
+        forcats::fct_relevel("psi", "tau", "phi", "gamma")
+      }
+      )
 
 
   tibble(hess = list(hess),
@@ -193,7 +249,7 @@ ms_max <- function(data = NULL, priors = "default") {
           fit_gev_trend(.x, priors = priors)
         }
       )
-    )|>
+    ) |>
     select(-data) |>
     unnest(results) |>
     ungroup()

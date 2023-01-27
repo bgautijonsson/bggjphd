@@ -5,6 +5,8 @@
 \title{Perform the second step, smooth, to sample from the posterior}
 \usage{
 ms_smooth(
+  write_to_disk = TRUE,
+  continue_previous = FALSE,
   fmla = station ~ param - 1,
   type = "spatial",
   theta = NULL,

@@ -1,12 +1,20 @@
 ## code to prepare `station_estimates` dataset goes here
 
+library(bggjphd)
 library(progressr)
 library(future)
 handlers("cli")
 
+priors <- list(
+  "location" = function(x) 0,
+  "scale" = function(x) 0,
+  "shape" = prior_shape,
+  "trend" = prior_trend
+)
+
 plan(multisession, workers = 4)
 with_progress({
-  station_estimates <-  ms_max(priors = "default")
+  station_estimates <-  ms_max(priors = priors)
 })
 plan(sequential)
 

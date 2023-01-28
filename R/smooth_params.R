@@ -4,9 +4,6 @@
 #' @param type
 #'
 #' @return
-#' @export
-#'
-#' @examples
 init_params <- function(n_samp = 500, type = "spatial") {
   if (type == "basic") {
     params <- init_params_basic(n_samp = n_samp)
@@ -21,9 +18,6 @@ init_params <- function(n_samp = 500, type = "spatial") {
 #' @param type
 #'
 #' @return
-#' @export
-#'
-#' @examples
 update_theta <- function(params, type = "spatial") {
   if (type == "basic") {
     params <- update_theta_basic(params)
@@ -38,8 +32,6 @@ update_theta <- function(params, type = "spatial") {
 #' Title
 #'
 #' @return
-#'
-#' @examples
 init_params_basic <- function(n_samp = 500) {
 
   theta <- init_theta()
@@ -47,8 +39,6 @@ init_params_basic <- function(n_samp = 500) {
 
   Z <- make_Z()
 
-  len_eta <- nrow(Z)
-  len_nu <- ncol(Z)
 
   nu <- init_nu(priors)
   eta <- init_eta(Z, nu, theta)
@@ -111,8 +101,6 @@ init_params_basic <- function(n_samp = 500) {
 #' @param theta_prop
 #'
 #' @return
-#'
-#' @examples
 update_theta_basic <- function(params) {
   params$iter <- params$iter + 1
 
@@ -180,20 +168,15 @@ update_theta_basic <- function(params) {
 #' Title
 #'
 #' @return
-#'
-#' @examples
 init_params_spatial <- function(n_samp = n_samp) {
 
   theta <- init_theta()
-
-
-  len_eta <- nrow(stations) * 4
 
   x <- init_eta_spatial(theta)
   Q_e <- make_Q_e_spatial(theta)
   # chol_Q_e <- Cholesky(Q_e)
 
-  eta_zero <- Matrix(
+  eta_zero <- Matrix::Matrix(
     0,
     ncol = 1,
     nrow = nrow(x)
@@ -202,13 +185,12 @@ init_params_spatial <- function(n_samp = n_samp) {
 
   Q_eta_cond_etahat <- make_Q_eta_cond_etahat_spatial(Q_e)
   mu_eta_cond_etahat <- make_mu_eta_cond_etahat_spatial(Q_eta_cond_etahat)
-  chol_Q_eta_cond_etahat <- Cholesky(Q_eta_cond_etahat)
+  chol_Q_eta_cond_etahat <- Matrix::Cholesky(Q_eta_cond_etahat)
 
 
   list(
     "x" = x,
     "Q_e" = Q_e,
-    # "chol_Q_e" = chol_Q_e,
     "eta_zero" = eta_zero,
     "Q_eta_cond_etahat" = Q_eta_cond_etahat,
     "mu_eta_cond_etahat" = mu_eta_cond_etahat,
@@ -223,14 +205,12 @@ init_params_spatial <- function(n_samp = n_samp) {
   )
 }
 
-#' A function to perform a metropolis hastings step on the proposed theta vector
+#' A function to perform a metropolis-hastings step on the proposed theta vector
 #'
 #' @param params
 #' @param theta_prop
 #'
 #' @return
-#'
-#' @examples
 update_theta_spatial <- function(params) {
 
   params$iter <- params$iter + 1
@@ -239,13 +219,10 @@ update_theta_spatial <- function(params) {
   theta_prop <- params$theta_prop
 
   Q_e_prop <- make_Q_e_spatial(theta_prop)
-  # chol_Q_e_prop <- Cholesky(Q_e_prop)
 
   Q_eta_cond_etahat_prop <- make_Q_eta_cond_etahat_spatial(Q_e_prop)
   mu_eta_cond_etahat_prop <- make_mu_eta_cond_etahat_spatial(Q_eta_cond_etahat_prop)
-  chol_Q_eta_cond_etahat_prop <- Cholesky(Q_eta_cond_etahat_prop)
-
-  # eta_prop <- sample_pi_eta_cond_etahat(chol_Q_eta_cond_etahat_prop, mu_eta_cond_etahat_prop)
+  chol_Q_eta_cond_etahat_prop <- Matrix::Cholesky(Q_eta_cond_etahat_prop)
 
   pi_new <- pi_theta_cond_etahat_spatial(
     theta_prop,

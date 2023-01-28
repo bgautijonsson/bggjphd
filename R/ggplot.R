@@ -2,6 +2,7 @@
 #'
 #' @return A theme object to be used with ggplot plots
 #' @export
+#' @importFrom ggplot2 %+replace%
 theme_bggj <- function(type = "standalone") {
   require(ggplot2, quietly = TRUE)
 

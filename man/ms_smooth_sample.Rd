@@ -7,16 +7,14 @@
 ms_smooth_sample(
   chain,
   p,
-  fmla,
   write_to_disk = TRUE,
-  continue_previous = FALSE,
   type = "spatial",
   theta,
   n_samp = 500
 )
 }
 \arguments{
-\item{fmla}{}
+\item{p}{}
 }
 \description{
 Helper function for performing sampling

@@ -1,8 +1,5 @@
 ## code to prepare `neighbor_matrix` dataset goes here
 
-library(tidyverse)
-library(here)
-library(foreach)
 n.cores <- parallel::detectCores() - 1
 
 
@@ -18,27 +15,27 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 
 d <- stations |>
-  distinct(station, proj_x, proj_y)
+  dplyr::distinct(station, proj_x, proj_y)
 
 ids <- d |>
-  distinct(station) |>
-  mutate(station_new = row_number())
+  dplyr::distinct(station) |>
+  dplyr::mutate(station_new = dplyr::row_number())
 
 
 
 d <- d |>
-  inner_join(
+  dplyr::inner_join(
     ids,
     by = "station"
   ) |>
-  select(-station) |>
-  rename(station = station_new) |>
-  arrange(station)
+  dplyr::select(-station) |>
+  dplyr::rename(station = station_new) |>
+  dplyr::arrange(station)
 
 
 
+library(foreach)
 start <- Sys.time()
-
 neighbors <- foreach(
   i = seq_len(nrow(d))
 ) %dopar% {
@@ -63,7 +60,7 @@ parallel::stopCluster(cl = my.cluster)
 
 cat(paste0("Algorithm took ", as.numeric(stop - start), " seconds to run."))
 
-neighbor_types <- tribble(
+neighbor_types <- dplyr::tribble(
   ~diff_x, ~diff_y, ~type,
   -2, 0, "ww",
   -1, -1, "sw",
@@ -82,36 +79,36 @@ neighbor_types <- tribble(
 usethis::use_data(neighbor_types, overwrite = TRUE)
 
 twelve_neighbors <- d |>
-  mutate(neighbor = neighbors) |>
-  distinct(station, neighbor) |>
-  unnest(neighbor) |>
-  inner_join(
+  dplyr::mutate(neighbor = neighbors) |>
+  dplyr::distinct(station, neighbor) |>
+  tidyr::unnest(neighbor) |>
+  dplyr::inner_join(
     stations |>
-      select(
+      dplyr::select(
         station, station_x = proj_x, station_y = proj_y
       ),
     by = "station"
   ) |>
-  inner_join(
+  dplyr::inner_join(
     stations |>
-      select(
+      dplyr::select(
         neighbor = station,
         neighbor_x = proj_x,
         neighbor_y = proj_y
       ),
     by = "neighbor"
   ) |>
-  mutate(
+  dplyr::mutate(
     diff_x = neighbor_x - station_x,
     diff_y = neighbor_y - station_y
     ) |>
-  select(station, neighbor, diff_x, diff_y) |>
-  inner_join(
+  dplyr::select(station, neighbor, diff_x, diff_y) |>
+  dplyr::inner_join(
     neighbor_types,
     by = c("diff_x", "diff_y")
   ) |>
-  select(station, neighbor, type) |>
-  mutate(type = as_factor(type))
+  dplyr::select(station, neighbor, type) |>
+  dplyr::mutate(type = forcats::as_factor(type))
 
 usethis::use_data(twelve_neighbors, overwrite = TRUE)
 

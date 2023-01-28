@@ -23,29 +23,29 @@ usethis::use_data(station_estimates, overwrite = TRUE)
 
 
 eta_hat <- station_estimates |>
-  select(-hess) |>
-  unnest(par) |>
-  arrange(name, station) |>
-  pull(value, name = name)
+  dplyr::select(-hess) |>
+  tidyr::unnest(par) |>
+  dplyr::arrange(name, station) |>
+  dplyr::pull(value, name = name)
 
 usethis::use_data(eta_hat, overwrite = TRUE)
 
 
 vals <- station_estimates |>
-  select(-par) |>
-  unnest(hess) |>
-  arrange(station) |>
-  select(-station) |>
-  nest(data = value) |>
-  mutate(
-    data = map(data, unlist)
+  dplyr::select(-par) |>
+  tidyr::unnest(hess) |>
+  dplyr::arrange(station) |>
+  dplyr::select(-station) |>
+  tidyr::nest(data = value) |>
+  dplyr::mutate(
+    data = purrr::map(data, unlist)
   ) |>
-  pivot_wider(names_from = name2, values_from = data) |>
-  select(-name1)
+  tidyr::pivot_wider(names_from = name2, values_from = data) |>
+  dplyr::select(-name1)
 
 n_stations <- nrow(stations)
 
-Q_etay <- bandSparse(
+Q_etay <- Matrix::bandSparse(
   n = 4 * n_stations,
   m = 4 * n_stations,
   k = c(

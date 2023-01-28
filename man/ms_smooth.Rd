@@ -6,8 +6,6 @@
 \usage{
 ms_smooth(
   write_to_disk = TRUE,
-  continue_previous = FALSE,
-  fmla = station ~ param - 1,
   type = "spatial",
   theta = NULL,
   n_samp = 500,
@@ -15,8 +13,6 @@ ms_smooth(
 )
 }
 \arguments{
-\item{fmla}{}
-
 \item{n_samp}{The number of samples total (warmup + sampling).}
 
 \item{n_chain}{The number of chains to sample from.}

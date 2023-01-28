@@ -1,14 +1,14 @@
 library(bggjphd)
-library(tidyverse)
+# library(tidyverse)
 library(progressr)
 library(future)
-library(arrow)
+# library(arrow)
 library(here)
 handlers("cli")
 
 here("results", "spatial") |> setwd()
 
-n_iter <- 2000
+n_iter <- 1
 plan(multisession, workers = 4)
 with_progress({
   results <- ms_smooth(n_samp = n_iter, type = "spatial")

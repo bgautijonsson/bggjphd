@@ -32,7 +32,7 @@ init_eta_spatial <- function(theta) {
     sd = sd
   )
 
-  Matrix(
+  Matrix::Matrix(
     data = out,
     ncol = 1
   )
@@ -47,19 +47,17 @@ init_eta_spatial <- function(theta) {
 #'
 #' @examples
 make_Q_e_spatial <- function(theta) {
-  n_stations <- nrow(stations)
 
   x_dim <- stations |>
-    pull(proj_x) |>
+    dplyr::pull(proj_x) |>
     unique() |>
     length()
 
   y_dim <- stations |>
-    pull(proj_y) |>
+    dplyr::pull(proj_y) |>
     unique() |>
     length()
 
-  n_params <- 4 * n_stations
 
   log_prec <- theta
   prec <- exp(log_prec)
@@ -67,7 +65,7 @@ make_Q_e_spatial <- function(theta) {
   Q_u <- make_Q_u(x_dim, y_dim)
 
 
-  Q_e <- bdiag(
+  Q_e <- Matrix::bdiag(
     list(
       prec[1] * Q_u,
       prec[2] * Q_u,
@@ -89,6 +87,7 @@ make_Q_e_spatial <- function(theta) {
 #' @export
 #'
 #' @examples
+#' @import Matrix
 make_Q_eta_cond_etahat_spatial <- function(Q_e) {
   Q_e + Q_etay
 }

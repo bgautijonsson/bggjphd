@@ -3,12 +3,8 @@
 #' @param theta the current prior parameters for the latent level parameters
 #'
 #' @return The log density of the parameter vector Theta
-#' @export
-#'
-#' @examples
 pi_theta_spatial <- function(theta) {
   log_prec_e <- theta[1:4]
-  prec_e <- exp(log_prec_e)
   sd_e <- exp(-log_prec_e / 2)
   out <- 0
   for (i in 1:4) {
@@ -33,9 +29,6 @@ pi_theta_spatial <- function(theta) {
 #' @param chol_Q_x_cond_y Cholesky decomposition of conditional precision of x after conditioning on y
 #'
 #' @return The log density of Theta given all other parameters
-#' @export
-#'
-#' @examples
 pi_theta_cond_etahat_spatial <- function(
     theta,
     eta,
@@ -55,30 +48,12 @@ pi_theta_cond_etahat_spatial <- function(
 #' @param chol_Q_x Cholesky decomposition of the precision matrix for x
 #'
 #' @return The log density of x conditioned on theta
-#' @export
-#'
-#' @examples
+#' @import Matrix
 pi_eta_cond_theta_spatial <- function(theta) {
-  t <- Matrix::t
-  # dmvn.sparse(
-  #   x = t(eta),
-  #   mu = rep(0, length(eta)),
-  #   CH = chol_Q_e,
-  #   prec = TRUE,
-  #   log = TRUE
-  # )
-  #
-  # # D <- Matrix::determinant(Q_e, logarithm = T)
-  # #
-  # # D <- D$modulus * D$sign
-  # #
-  # #
-  # as.numeric(D/2 - t(eta) %*% Q_e %*% eta / 2)
 
   out <- 0
   n_stations <- nrow(stations)
   log_prec <- theta
-  prec <- exp(log_prec)
   log_sd <- -log_prec / 2
 
   for (i in 1:4) {
@@ -96,12 +71,10 @@ pi_eta_cond_theta_spatial <- function(theta) {
 #' @param x The current samples of latent parameters x
 #'
 #' @return The log density of x when conditioning on y
-#' @export
-#'
-#' @examples
+#' @import Matrix
 pi_eta_cond_theta_etahat_spatial <- function(eta, chol_Q_eta_cond_etahat, mu_eta_cond_etahat) {
   t <- Matrix::t
-  dmvn.sparse(
+  sparseMVN::dmvn.sparse(
     x = t(eta),
     mu = as.vector(mu_eta_cond_etahat),
     CH = chol_Q_eta_cond_etahat,
@@ -121,12 +94,10 @@ pi_eta_cond_theta_etahat_spatial <- function(eta, chol_Q_eta_cond_etahat, mu_eta
 #' @param chol_Q_e Block diagonal matrix of Hessian matrices from the Max step
 #'
 #' @return The log density of y conditioned on x and theta
-#' @export
-#'
-#' @examples
+#' @import Matrix
 pi_etahat_cond_eta_theta_spatial <- function(eta) {
   t <- Matrix::t
-  dmvn.sparse(
+  sparseMVN::dmvn.sparse(
     x = t(eta_hat),
     mu = as.vector(eta),
     CH = chol_Q_etay,

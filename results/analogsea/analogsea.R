@@ -3,14 +3,14 @@ library(bggjphd)
 library(tidyverse)
 library(future)
 
-d <- docklet_create()
+# d <- docklet_create()
+d <- droplets()[[1]]
 
 
 d |> docklet_pull("r-base")
 
 d |> droplet_ssh("docker ps", verbose = TRUE)
-d |> droplet_ssh("docker exec 35e737e40df4 Rscript -e 'bggjphd::stations'", verbose = T)
-
+d |> droplet_ssh("docker exec 96209a912710 Rscript -e 'bggjphd::stations'", verbose = T)
 
 ip <- d |> droplet_ip()
 
@@ -44,9 +44,9 @@ cl <- makeClusterPSOCK(
     # Install furrr and future
     "-e", shQuote("if (!requireNamespace('furrr', quietly = TRUE)) install.packages('furrr')"),
     # Install pak for package management
-    "-e", shQuote("if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"),
+    "-e", shQuote("if (!requireNamespace('pak', quietly = TRUE)) install.packages('pak')"),
     # Install PHD Package
-    "-e", shQuote("if (!requireNamespace('bggjphd', quietly = TRUE)) remotes::install_github('bgautijonsson/bggjphd')")
+    "-e", shQuote("if (!requireNamespace('bggjphd', quietly = TRUE)) pak::pak('bgautijonsson/bggjphd')")
   ),
 
   # Actually run this stuff. Set to TRUE if you don't want it to run remotely.

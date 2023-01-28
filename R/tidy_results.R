@@ -3,18 +3,15 @@
 #' @param results
 #'
 #' @return
-#' @export
-#'
-#' @examples
 tidy_results <- function(results, type = "spatial") {
 
   results |>
-    map(tidy_helper, type = type) |>
-    bind_rows() |>
-    arrange(chain, iter) |>
-    mutate(draw = row_number()) |>
-    rename(.iteration = iter, .chain = chain, .draw = draw) |>
-    as_draws_df()
+    purrr::map(tidy_helper, type = type) |>
+    dplyr::bind_rows() |>
+    dplyr::arrange(chain, iter) |>
+    dplyr::mutate(draw = dplyr::row_number()) |>
+    dplyr::rename(.iteration = iter, .chain = chain, .draw = draw) |>
+    posterior::as_draws_df()
 
 }
 
@@ -32,7 +29,7 @@ tidy_helper <- function(datalist, type = "spatial") {
   theta <- datalist$theta |>
     as.data.frame()
 
-  names(theta) <- str_c(
+  names(theta) <- stringr::str_c(
     "theta[",
     seq_len(ncol(theta)),
     "]"
@@ -44,7 +41,7 @@ tidy_helper <- function(datalist, type = "spatial") {
   if (type == "spatial") {
 
     names(x) <- c(
-      str_c(
+      stringr::str_c(
         rep(
           c(
             "psi",
@@ -55,7 +52,7 @@ tidy_helper <- function(datalist, type = "spatial") {
           each = nrow(stations)
         ),
         rep(
-          str_c(
+          stringr::str_c(
             "[",
             seq_len(nrow(stations)),
             "]"
@@ -68,7 +65,7 @@ tidy_helper <- function(datalist, type = "spatial") {
 
   } else if (type == "basic") {
     names(x) <- c(
-      str_c(
+      stringr::str_c(
         rep(
           c(
             "psi",
@@ -79,7 +76,7 @@ tidy_helper <- function(datalist, type = "spatial") {
           each = nrow(stations)
         ),
         rep(
-          str_c(
+          stringr::str_c(
             "[",
             seq_len(nrow(stations)),
             "]"
@@ -97,10 +94,12 @@ tidy_helper <- function(datalist, type = "spatial") {
   }
 
   cbind(theta, x) |>
-    as_tibble() |>
-    mutate(iter = row_number(),
-           chain = datalist$chain) |>
-    select(iter, everything())
+    dplyr::as_tibble() |>
+    dplyr::mutate(
+      iter = dplyr::row_number(),
+      chain = datalist$chain
+    ) |>
+    dplyr::select(iter, dplyr::everything())
 
 }
 

@@ -7,15 +7,7 @@ devtools::load_all()
 d <- here::here(
   "yearly_maximum_per_hour.csv"
 ) |>
-  vroom::vroom() |>
-  dplyr::filter(
-    # proj_x >= cur_group$min_x,
-    # proj_x <= cur_group$max_x,
-    # proj_y >= cur_group$min_y,
-    # proj_y <= cur_group$max_y
-    # proj_x <= 100,
-    # proj_y <= 100
-  )
+  vroom::vroom()
 
 
 ids <- d |>

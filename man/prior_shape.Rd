@@ -4,7 +4,7 @@
 \alias{prior_shape}
 \title{Title}
 \usage{
-prior_shape(phi)
+prior_shape(phi, alpha = 4, beta = 4, c = 0.8)
 }
 \arguments{
 \item{shape}{}

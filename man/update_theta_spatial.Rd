@@ -2,7 +2,7 @@
 % Please edit documentation in R/smooth_params.R
 \name{update_theta_spatial}
 \alias{update_theta_spatial}
-\title{A function to perform a metropolis hastings step on the proposed theta vector}
+\title{A function to perform a metropolis-hastings step on the proposed theta vector}
 \usage{
 update_theta_spatial(params)
 }
@@ -10,5 +10,5 @@ update_theta_spatial(params)
 \item{theta_prop}{}
 }
 \description{
-A function to perform a metropolis hastings step on the proposed theta vector
+A function to perform a metropolis-hastings step on the proposed theta vector
 }

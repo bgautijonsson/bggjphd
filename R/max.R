@@ -19,8 +19,6 @@ neg_log_lik_gev_trend <- function(y, t, par, priors, links, t0 = 1981) {
 
   mu <- mu0 * (1 + delta * t)
 
-  m <- length(y)
-
   z <- (y - mu) / sigma
 
   if (any(1 + xi * z <= 0)) return(NA)
@@ -185,12 +183,12 @@ fit_gev_trend <- function(data, priors = "default", ...) {
     y = data$precip,
     priors = priors,
     t = data$year,
-     hessian = TRUE
+    hessian = TRUE
   )
 
   param_names <- c("psi", "tau", "phi", "gamma")
 
-  par <- tibble(
+  par <- dplyr::tibble(
     name = param_names |>
       forcats::as_factor() |>
       forcats::fct_relevel("psi", "tau", "phi", "gamma"),
@@ -199,26 +197,26 @@ fit_gev_trend <- function(data, priors = "default", ...) {
 
   hess <- m$hessian |>
     as.data.frame() |>
-    as_tibble() |>
-    set_names(
+    dplyr::as_tibble() |>
+    purrr::set_names(
       param_names
     ) |>
-    mutate(
+    dplyr::mutate(
       name1 = param_names
     ) |>
-    pivot_longer(c(-name1), names_to = "name2", values_to = "value") |>
-    mutate_at(
-      vars(name1, name2),
+    tidyr::pivot_longer(c(-name1), names_to = "name2", values_to = "value") |>
+    dplyr::mutate_at(
+      dplyr::vars(name1, name2),
       function(x) {
         x |>
-        forcats::as_factor() |>
-        forcats::fct_relevel("psi", "tau", "phi", "gamma")
+          forcats::as_factor() |>
+          forcats::fct_relevel("psi", "tau", "phi", "gamma")
       }
-      )
+    )
 
 
-  tibble(hess = list(hess),
-         par = list(par))
+  dplyr::tibble(hess = list(hess),
+                par = list(par))
 
 }
 
@@ -239,9 +237,9 @@ ms_max <- function(data = NULL, priors = "default") {
   p <- progressr::progressor(steps = length(unique(data$station)))
 
   data |>
-    group_by(station) |>
-    group_nest() |>
-    mutate(
+    dplyr::group_by(station) |>
+    dplyr::group_nest() |>
+    dplyr::mutate(
       results = furrr::future_map(
         data,
         ~ {
@@ -250,7 +248,7 @@ ms_max <- function(data = NULL, priors = "default") {
         }
       )
     ) |>
-    select(-data) |>
-    unnest(results) |>
-    ungroup()
+    dplyr::select(-data) |>
+    tidyr::unnest(results) |>
+    dplyr::ungroup()
 }

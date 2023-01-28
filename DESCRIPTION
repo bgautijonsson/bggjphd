@@ -12,41 +12,30 @@ RoxygenNote: 7.2.3
 URL: https://github.com/bgautijonsson/bggjphd,
     http://bggj.is/bggjphd/
 BugReports: https://github.com/bgautijonsson/bggjphd/issues
-Depends: 
-    dplyr,
-    forcats,
-    Matrix,
-    posterior,
-    purrr,
-    R (>= 4.2.2),
-    readr,
-    sparseMVN,
-    stringr,
-    tibble,
-    tidyr
 LazyData: true
-Imports: 
-    arrow,
-    bayesplot,
-    corrr,
-    cowplot,
-    data.table,
-    evd,
-    foreach,
-    furrr,
-    future,
-    GGally,
-    here,
-    kableExtra,
-    parallel,
-    patchwork,
-    progressr,
-    scales,
-    tictoc,
-    vroom
+Depends:
+    R (>= 4.2.2)
 Suggests: 
     knitr,
     rmarkdown,
     devtools,
     usethis,
     tidyverse
+Imports: 
+    dplyr,
+    forcats,
+    Matrix,
+    posterior,
+    purrr,
+    readr,
+    sparseMVN,
+    stringr,
+    tibble,
+    tidyr,
+    data.table,
+    evd,
+    foreach,
+    furrr,
+    future,
+    parallel,
+    progressr

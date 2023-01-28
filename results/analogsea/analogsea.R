@@ -5,10 +5,11 @@ library(future)
 
 d <- docklet_create()
 
+
 d |> docklet_pull("r-base")
 
 d |> droplet_ssh("docker ps", verbose = TRUE)
-
+d |> droplet_ssh("docker exec 35e737e40df4 Rscript -e 'bggjphd::stations'", verbose = T)
 
 
 ip <- d |> droplet_ip()
@@ -55,7 +56,11 @@ cl <- makeClusterPSOCK(
 
 plan(cluster, workers = cl)
 
-n_cpus %<-% {bggjphd::stations}
+n_cpus %<-% {print(1)}
 n_cpus
 
 plan(sequential)
+
+print(1)
+
+

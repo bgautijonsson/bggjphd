@@ -10,3 +10,4 @@
 ^Meta$
 ^LICENSE\.md$
 vignettes/
+^\.httr-oauth$

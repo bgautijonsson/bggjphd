@@ -15,16 +15,68 @@ knitr::opts_chunk$set(
 
 # About this page
 
-I'm developing and maintaining this package to go along with my PhD studies for reproducibility and to held me keep my sanity intact for the next years.
+Information about this package and why it was created can be found at [my website](https://www.bggj.is/phd)
 
-The main gist of my PhD research will be adding to the `Max-and-Smooth` method previously developed and published by my advisor, Birgir Hrafnkelsson, and others [here](https://arxiv.org/abs/1907.11969){target="_blank"}
+# Installing the package
 
-# Articles
+The package can be installed with [pak](https://pak.r-lib.org/) or [remotes](https://remotes.r-lib.org/). I recommend using `pak`, since it can also install any non-R dependencies that might be required. I've started to move all my package installation to `pak`, and use it for example to set up my [Docker container](https://hub.docker.com/r/bgautijonsson/phdocker) that sets up an R environment along with any needed dependencies for `bggjphd`.
 
-The `Articles` section contains analysis I have written during different steps of my PhD. Currently the articles are
+```{r devtools_bggjphd, eval = FALSE}
+# using devtools
+install.packages("remotes")
+remotes::install_github("bgautijonsson/bggjphd")
+```
 
-* **Data:** About the data that I use for this project. Where to find it, how to download and process it, etc.
-* **The Max Step:** This talks about the first step of the `Max-and-Smooth` algorithm in which we perform sitewise maximum likelihood estimation of the GEV with trend parameters.
-* **The Smooth Step: Simple exchangeable hierarchical priors:** Here I show results when running the `Max-and-Smooth` algorithm for a very simple hierarchical model where each station's four parameters are sampled from one of four normal distributions.
-* **The Smooth Step: Simple spatial priors:** Here I show results when a simple spatial prior is assumed.
 
+```{r pak_bggjphd, eval = FALSE}
+# using pak
+install.packages("pak")
+pak::pak("bgautijonsson/bggjphd")
+```
+
+# Data
+
+The `bggjphd` package comes with some dataset
+
+```{r}
+library(bggjphd)
+```
+
+## precip
+
+The `precip` dataset contains maximum hourly precipitation calculated yearly for each of the locations in the [UKCP Local Projections on a 5km grid over the UK for 1980-2080](https://catalogue.ceda.ac.uk/uuid/e304987739e04cdc960598fa5e4439d0) from the CEDA archive.
+
+```{r}
+skimr::skim(precip)
+```
+
+## stations
+
+The `stations` dataset contains information about the stations at which the observations from `precip` are recorded.
+
+```{r}
+skimr::skim(stations)
+```
+
+## station_estimates
+
+The `station_estimates` dataset contains parameter estimates and Hessian matrices from generalized maximum likelihood estimation of GEV models with trend at each of the locations. The results are stored in list-columns which need to be unnested for analysis. Inside the list columns the results are stored in long format.
+
+```{r}
+station_estimates |> 
+  dplyr::select(par) |> 
+  tidyr::unnest(par) |> 
+  dplyr::group_by(name) |> 
+  skimr::skim()
+```
+```{r}
+station_estimates |> 
+  dplyr::select(hess) |> 
+  tidyr::unnest(hess) |> 
+  dplyr::group_by(name1, name2) |> 
+  skimr::skim()
+```
+
+## other data
+
+There are other objects stored as data in `bggjphd`, but these are mostly kept there for use with the `ms_smooth()` function, and are binary versions of sparse `Matrix::` matrices.

@@ -38,4 +38,7 @@ Imports:
     furrr,
     future,
     parallel,
-    progressr
+    progressr,
+    RCurl,
+    lubridate,
+    ncdf4
